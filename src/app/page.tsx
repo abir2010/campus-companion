@@ -49,7 +49,7 @@ const features = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="container mx-auto px-4 py-8">
         <h1 className="font-headline text-2xl font-bold text-foreground">IIUC Companion</h1>
       </header>
