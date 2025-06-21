@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Campus Companion',
+  title: 'IIUC Companion',
   description: 'An all-in-one toolkit for university students.',
 };
 

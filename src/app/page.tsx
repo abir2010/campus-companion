@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="container mx-auto px-4 py-8">
-        <h1 className="font-headline text-2xl font-bold text-foreground">Campus Companion</h1>
+        <h1 className="font-headline text-2xl font-bold text-foreground">IIUC Companion</h1>
       </header>
       <main className="flex-grow">
         <div className="container mx-auto flex flex-col items-center justify-center space-y-6 px-4 pb-12 pt-8 text-center md:space-y-8 md:pt-16">
@@ -82,7 +82,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="container mx-auto border-t px-4 py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Campus Companion. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} IIUC Companion. All rights reserved.</p>
       </footer>
     </div>
   );

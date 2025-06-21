@@ -22,7 +22,7 @@ export default function Loading() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
       <div className="space-y-4 text-center">
-        <h1 className="font-headline text-3xl font-bold text-foreground">Campus Companion</h1>
+        <h1 className="font-headline text-3xl font-bold text-foreground">IIUC Companion</h1>
         <p className="text-5xl font-bold font-mono text-primary">{progress}%</p>
         <p className="text-muted-foreground animate-pulse">Please wait...</p>
       </div>
