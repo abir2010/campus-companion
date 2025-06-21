@@ -22,16 +22,16 @@ const gradePoints: { [key: string]: number } = {
 };
 
 const gradingScale = [
-  { grade: "A+", marks: "80-100" },
-  { grade: "A", marks: "75-79" },
-  { grade: "A-", marks: "70-74" },
-  { grade: "B+", marks: "65-69" },
-  { grade: "B", marks: "60-64" },
-  { grade: "B-", marks: "55-59" },
-  { grade: "C+", marks: "50-54" },
-  { grade: "C", marks: "45-49" },
-  { grade: "D", marks: "40-44" },
-  { grade: "F", marks: "Below 40" },
+  { grade: "A+", marks: "80-100", points: 4.0 },
+  { grade: "A", marks: "75-79", points: 4.0 },
+  { grade: "A-", marks: "70-74", points: 3.7 },
+  { grade: "B+", marks: "65-69", points: 3.3 },
+  { grade: "B", marks: "60-64", points: 3.0 },
+  { grade: "B-", marks: "55-59", points: 2.7 },
+  { grade: "C+", marks: "50-54", points: 2.3 },
+  { grade: "C", marks: "45-49", points: 2.0 },
+  { grade: "D", marks: "40-44", points: 1.0 },
+  { grade: "F", marks: "Below 40", points: 0.0 },
 ];
 
 export default function GpaCalculatorPage() {
@@ -142,14 +142,16 @@ export default function GpaCalculatorPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Grade</TableHead>
-                                <TableHead className="text-right">Marks Range</TableHead>
+                                <TableHead>Marks Range</TableHead>
+                                <TableHead className="text-right">Points</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {gradingScale.map((item) => (
                                 <TableRow key={item.grade}>
                                     <TableCell className="font-medium">{item.grade}</TableCell>
-                                    <TableCell className="text-right">{item.marks}</TableCell>
+                                    <TableCell>{item.marks}</TableCell>
+                                    <TableCell className="text-right">{item.points.toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
