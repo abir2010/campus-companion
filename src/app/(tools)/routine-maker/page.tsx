@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageHeader } from "@/components/page-header";
@@ -383,20 +384,20 @@ export default function RoutineMakerPage() {
             <CardContent>
               <form onSubmit={handleAddCourse} className="space-y-4">
                 <div className="space-y-1">
-                  <Label htmlFor={\`\${formId}-name\`}>Course Name</Label>
-                  <Input id={\`\${formId}-name\`} name="name" value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="e.g., Calculus I" required/>
+                  <Label htmlFor={`${formId}-name`}>Course Name</Label>
+                  <Input id={`${formId}-name`} name="name" value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="e.g., Calculus I" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={\`\${formId}-teacher\`}>Teacher</Label>
-                  <Input id={\`\${formId}-teacher\`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
+                  <Label htmlFor={`${formId}-teacher`}>Teacher</Label>
+                  <Input id={`${formId}-teacher`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={\`\${formId}-section\`}>Section</Label>
-                  <Input id={\`\${formId}-section\`} name="section" value={section} onChange={(e) => setSection(e.target.value)} placeholder="e.g., A" required/>
+                  <Label htmlFor={`${formId}-section`}>Section</Label>
+                  <Input id={`${formId}-section`} name="section" value={section} onChange={(e) => setSection(e.target.value)} placeholder="e.g., A" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={\`\${formId}-room\`}>Room Number</Label>
-                  <Input id={\`\${formId}-room\`} name="room" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 501" required/>
+                  <Label htmlFor={`${formId}-room`}>Room Number</Label>
+                  <Input id={`${formId}-room`} name="room" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 501" required/>
                 </div>
                 
                 <Separator />
@@ -459,7 +460,7 @@ export default function RoutineMakerPage() {
             <CardContent className="max-h-80 overflow-y-auto">
               <div className="space-y-3">
                 {courseList.length > 0 ? courseList.map(course => (
-                  <div key={\`\${course.name}-\${course.teacher}-\${course.section}-\${course.roomNumber}\`} className="p-3 rounded-md bg-muted/50 text-sm">
+                  <div key={`${course.name}-${course.teacher}-${course.section}-${course.roomNumber}`} className="p-3 rounded-md bg-muted/50 text-sm">
                     <div className="flex items-start justify-between">
                         <div>
                             <p className="font-semibold">{course.name}</p>
@@ -509,7 +510,7 @@ export default function RoutineMakerPage() {
                                     {daysOfWeek.map(day => {
                                         if (period.isBreak) {
                                             return (
-                                                <div key={\`\${day}-\${period.time}\`} className="bg-muted/50 border-l flex items-center justify-center">
+                                                <div key={`${day}-${period.time}`} className="bg-muted/50 border-l flex items-center justify-center">
                                                     {day === 'Monday' && <div className="text-sm font-semibold text-muted-foreground -rotate-90 whitespace-nowrap">LUNCH</div>}
                                                 </div>
                                             )
@@ -518,7 +519,7 @@ export default function RoutineMakerPage() {
                                         const courseNameIndex = classItem ? uniqueCourseNames.indexOf(classItem.name) : -1;
                                         
                                         return (
-                                            <div key={\`\${day}-\${period.time}\`} className="border-l border-t p-1 min-h-[90px]">
+                                            <div key={`${day}-${period.time}`} className="border-l border-t p-1 min-h-[90px]">
                                                 {classItem && <ClassCard classItem={classItem} colorIndex={courseNameIndex} />}
                                             </div>
                                         )
