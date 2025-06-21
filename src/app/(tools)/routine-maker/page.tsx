@@ -215,7 +215,7 @@ export default function RoutineMakerPage() {
             height: 210mm;
             margin: auto;
             background: white;
-            padding: 1cm;
+            padding: 0.75cm;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -236,13 +236,13 @@ export default function RoutineMakerPage() {
         .routine-table th {
             background-color: hsl(${muted}) !important;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: hsl(${foreground});
-            padding: 8px;
+            padding: 6px;
         }
         
         .time-cell {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             color: hsl(${mutedForeground});
             width: 90px;
@@ -253,12 +253,12 @@ export default function RoutineMakerPage() {
 
         .class-cell {
             padding: 2px;
-            height: 90px;
+            height: 80px;
         }
 
         .class-card {
-            padding: 6px;
-            border-radius: 6px;
+            padding: 4px;
+            border-radius: 4px;
             height: 100%;
             width: 100%;
             border: 1px solid;
@@ -266,13 +266,13 @@ export default function RoutineMakerPage() {
             flex-direction: column;
             overflow: hidden;
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             box-sizing: border-box;
         }
         
-        .class-card .course-name { font-weight: 700; font-size: 13px; line-height: 1.2; white-space: normal; }
-        .class-card .teacher-name { font-size: 11px; opacity: 0.8; }
-        .class-card .details { font-size: 11px; opacity: 0.8; margin-top: auto; display: flex; justify-content: space-between; }
+        .class-card .course-name { font-weight: 700; font-size: 12px; line-height: 1.2; white-space: normal; }
+        .class-card .teacher-name { font-size: 10px; opacity: 0.8; }
+        .class-card .details { font-size: 10px; opacity: 0.8; margin-top: auto; display: flex; justify-content: space-between; }
         
         .lunch-cell {
             background-color: hsl(${muted}) !important;
@@ -285,8 +285,8 @@ export default function RoutineMakerPage() {
         h1 {
             font-family: 'Space Grotesk', sans-serif;
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 24pt;
+            margin-bottom: 15px;
+            font-size: 22pt;
         }
         ${courseStyles}
     `;
