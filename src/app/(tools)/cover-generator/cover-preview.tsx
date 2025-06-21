@@ -77,7 +77,7 @@ const getPrintableHtml = (content: CoverPageData): string => {
                 .main-title { font-family: 'Playfair Display', serif; font-size: 42pt; font-weight: 700; margin-bottom: 0.5in; color: hsl(var(--primary)); }
                 .course-details { font-size: 22pt; line-height: 1.6; color: hsl(var(--foreground)); opacity: 0.9; }
                  .course-details strong { font-family: 'Roboto'; font-weight: 700; letter-spacing: 0.5px; }
-                .details-grid { display: flex; justify-content: space-between; width: 100%; margin-top: 2in; font-size: 12pt; gap: 1.5in; }
+                .details-grid { display: flex; justify-content: space-between; width: 100%; margin-top: 2in; font-size: 13pt; gap: 1.5in; }
                 .info-block { width: 48%; padding: 20px; border-left: 3px solid hsl(var(--primary) / 0.7); background-color: hsl(var(--primary) / 0.05); border-radius: 0 8px 8px 0; }
                 .info-block h3 { font-family: 'Playfair Display', serif; font-size: 16pt; font-weight: 700; color: hsl(var(--primary)); margin-top: 0; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid hsl(var(--primary) / 0.2); }
                 .info-block p { margin: 8px 0; }
@@ -124,7 +124,7 @@ const getPrintableHtml = (content: CoverPageData): string => {
                 .content-area { text-align: center; margin: 2in 0; }
                 .main-title { font-size: 28pt; font-weight: 700; margin-bottom: 0.5in; }
                 .course-details { font-size: 16pt; line-height: 1.8; color: #555; }
-                .details-grid { display: flex; justify-content: space-between; font-size: 11pt; margin-top: auto; }
+                .details-grid { display: flex; justify-content: space-between; font-size: 12pt; margin-top: auto; }
                 .info-block { width: 45%; }
                 .info-block h3 { font-size: 14pt; font-weight: 400; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
                 .info-block p { margin: 6px 0; }
@@ -166,7 +166,7 @@ const getPrintableHtml = (content: CoverPageData): string => {
                 .page { padding: 0; display: flex; }
                 .sidebar { width: 35%; background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: 1.5in 1in; display: flex; flex-direction: column; justify-content: space-between; }
                 .sidebar h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18pt; margin: 0 0 10px 0; }
-                .sidebar p { font-family: 'Roboto', sans-serif; margin: 4px 0; opacity: 0.9; }
+                .sidebar p { font-family: 'Roboto', sans-serif; margin: 4px 0; opacity: 0.9; font-size: 11pt; }
                 .main-content { width: 65%; padding: 2in 1.25in; text-align: left; display: flex; flex-direction: column; }
                 .university-name { font-family: 'Space Grotesk', sans-serif; font-size: 20pt; font-weight: 700; text-align: right; margin-bottom: auto; opacity: 0.7;}
                 .content-area { margin-bottom: auto; }
@@ -215,7 +215,7 @@ const getPrintableHtml = (content: CoverPageData): string => {
                 .content-area { flex-grow: 1; }
                 .main-title { font-size: 36pt; font-weight: 700; margin-bottom: 0.75in; }
                 .course-details { font-size: 20pt; line-height: 1.7; }
-                .details-grid { display: flex; justify-content: space-around; margin-top: 2in; font-size: 12pt; }
+                .details-grid { display: flex; justify-content: space-around; margin-top: 2in; font-size: 13pt; }
                 .info-block { width: 40%; text-align: left;}
                 .info-block h3 { font-size: 14pt; font-weight: 700; margin-bottom: 15px; }
                 .info-block p { margin: 6px 0; }
@@ -301,7 +301,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                             <p><strong>Topic:</strong> {assignmentTitle}</p>
                         </div>
                     </div>
-                    <div className="mt-16 flex w-full justify-between text-left gap-8">
+                    <div className="mt-16 flex w-full justify-between text-left gap-8 text-base">
                         <div className="w-[48%] p-4 border-l-4 border-primary/70 bg-primary/5 rounded-r-lg">
                             <h3 className="font-bold text-lg pb-2 mb-2 border-b border-primary/20 text-primary" style={{fontFamily: "'Playfair Display', serif"}}>Submitted To:</h3>
                             <p><strong>Name:</strong> {submittedTo.name}</p>
@@ -333,7 +333,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                             <p><strong>Topic:</strong> {assignmentTitle}</p>
                         </div>
                     </div>
-                    <div className="flex justify-between w-full text-left text-sm mt-auto">
+                    <div className="flex justify-between w-full text-left text-base mt-auto">
                         <div className="w-[48%]">
                             <h3 className="text-base font-semibold border-b pb-2 mb-2">Submitted To:</h3>
                             <p><strong>Name:</strong> {submittedTo.name}</p>
@@ -356,12 +356,12 @@ export function CoverPreview({ content }: CoverPreviewProps) {
             return (
                 <div className="flex h-full w-full">
                     <div className="w-[35%] bg-primary text-primary-foreground p-8 flex flex-col justify-around">
-                        <div className="text-sm">
+                        <div className="text-base">
                             <h3 className="font-headline text-lg font-bold">Submitted To:</h3>
                             <p><strong>Name:</strong> {submittedTo.name}</p>
                             <p><strong>Designation:</strong> {submittedTo.designation}</p>
                         </div>
-                        <div className="text-sm">
+                        <div className="text-base">
                             <h3 className="font-headline text-lg font-bold">Submitted By:</h3>
                             <p><strong>Name:</strong> {submittedBy.name}</p>
                             <p><strong>ID:</strong> {submittedBy.id}</p>
@@ -395,7 +395,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                             <p><strong>Topic:</strong> {assignmentTitle}</p>
                         </div>
                     </div>
-                    <div className="flex justify-around w-full text-left mt-auto">
+                    <div className="flex justify-around w-full text-left mt-auto text-base">
                         <div className="w-[45%]">
                             <h3 className="font-bold text-lg mb-2">Submitted To:</h3>
                             <p><strong>Name:</strong> {submittedTo.name}</p>
