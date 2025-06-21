@@ -16,6 +16,8 @@ type Class = {
   id: string;
   name: string;
   teacher: string;
+  section: string;
+  roomNumber: string;
   day: string;
   period: string; 
 };
@@ -62,7 +64,10 @@ const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: nu
         >
             <p className="font-bold text-sm leading-tight truncate">{classItem.name}</p>
             <p className="text-xs opacity-80 truncate">{classItem.teacher}</p>
-            <p className="text-xs opacity-80 mt-auto">{classItem.period}</p>
+            <div className="text-xs opacity-80 mt-auto flex justify-between">
+              <span>Sec: {classItem.section}</span>
+              <span>Room: {classItem.roomNumber}</span>
+            </div>
         </div>
     );
 };
@@ -70,14 +75,16 @@ const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: nu
 
 export default function RoutineMakerPage() {
   const [classes, setClasses] = useState<Class[]>([
-    { id: '1', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Monday', period: '10:40 - 11:30' },
-    { id: '1-2', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Wednesday', period: '12:20 - 13:10' },
-    { id: '2', name: 'Algorithms', teacher: 'Dr. Ada Lovelace', day: 'Wednesday', period: '13:50 - 14:40' },
-    { id: '3', name: 'Data Structures', teacher: 'Dr. Alan Turing', day: 'Tuesday', period: '11:30 - 12:20' },
+    { id: '1', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', section: 'A', roomNumber: 'CS-501', day: 'Monday', period: '10:40 - 11:30' },
+    { id: '1-2', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', section: 'A', roomNumber: 'CS-501', day: 'Wednesday', period: '12:20 - 13:10' },
+    { id: '2', name: 'Algorithms', teacher: 'Dr. Ada Lovelace', section: 'B', roomNumber: 'CS-502', day: 'Wednesday', period: '13:50 - 14:40' },
+    { id: '3', name: 'Data Structures', teacher: 'Dr. Alan Turing', section: 'A', roomNumber: 'CS-501', day: 'Tuesday', period: '11:30 - 12:20' },
   ]);
 
   const [courseName, setCourseName] = useState('');
   const [teacher, setTeacher] = useState('');
+  const [section, setSection] = useState('');
+  const [roomNumber, setRoomNumber] = useState('');
   const [slots, setSlots] = useState<Slot[]>([]);
   
   const [currentDay, setCurrentDay] = useState('Saturday');
@@ -107,8 +114,8 @@ export default function RoutineMakerPage() {
 
   const handleAddCourse = (e: FormEvent) => {
     e.preventDefault();
-    if (!courseName || !teacher || slots.length === 0) {
-      alert("Please provide a course name, teacher, and at least one time slot.");
+    if (!courseName || !teacher || !section || !roomNumber || slots.length === 0) {
+      alert("Please provide a course name, teacher, section, room number, and at least one time slot.");
       return;
     }
 
@@ -116,6 +123,8 @@ export default function RoutineMakerPage() {
       id: `${Date.now()}-${i}`,
       name: courseName,
       teacher: teacher,
+      section: section,
+      roomNumber: roomNumber,
       ...slot
     }));
 
@@ -124,26 +133,33 @@ export default function RoutineMakerPage() {
     // Reset form
     setCourseName('');
     setTeacher('');
+    setSection('');
+    setRoomNumber('');
     setSlots([]);
   };
 
-  const handleRemoveCourse = (courseName: string, teacher: string) => {
-    setClasses(prev => prev.filter(c => !(c.name === courseName && c.teacher === teacher)));
+  const handleRemoveCourse = (courseName: string, teacher: string, section: string, roomNumber: string) => {
+    setClasses(prev => prev.filter(c => !(
+        c.name === courseName && 
+        c.teacher === teacher &&
+        c.section === section &&
+        c.roomNumber === roomNumber
+    )));
   };
 
   const uniqueCourseNames = [...new Set(classes.map(c => c.name))];
   
   const groupedClasses = useMemo(() => {
     return classes.reduce((acc, c) => {
-        const key = `${c.name}|${c.teacher}`;
+        const key = `${c.name}|${c.teacher}|${c.section}|${c.roomNumber}`;
         if (!acc[key]) {
-            acc[key] = { name: c.name, teacher: c.teacher, schedules: [] };
+            acc[key] = { name: c.name, teacher: c.teacher, section: c.section, roomNumber: c.roomNumber, schedules: [] };
         }
         acc[key].schedules.push({ id: c.id, day: c.day, period: c.period });
         // Sort schedules for consistent display
         acc[key].schedules.sort((a,b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day) || a.period.localeCompare(b.period));
         return acc;
-    }, {} as Record<string, {name: string, teacher: string, schedules: {id: string, day: string, period: string}[]}>);
+    }, {} as Record<string, {name: string, teacher: string, section: string, roomNumber: string, schedules: {id: string, day: string, period: string}[]}>);
   }, [classes]);
 
   const courseList = Object.values(groupedClasses);
@@ -170,6 +186,14 @@ export default function RoutineMakerPage() {
                 <div className="space-y-1">
                   <Label htmlFor={`${formId}-teacher`}>Teacher</Label>
                   <Input id={`${formId}-teacher`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${formId}-section`}>Section</Label>
+                  <Input id={`${formId}-section`} name="section" value={section} onChange={(e) => setSection(e.target.value)} placeholder="e.g., A" required/>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${formId}-room`}>Room Number</Label>
+                  <Input id={`${formId}-room`} name="room" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 501" required/>
                 </div>
                 
                 <Separator />
@@ -232,13 +256,14 @@ export default function RoutineMakerPage() {
             <CardContent className="max-h-80 overflow-y-auto">
               <div className="space-y-3">
                 {courseList.length > 0 ? courseList.map(course => (
-                  <div key={`${course.name}-${course.teacher}`} className="p-3 rounded-md bg-muted/50 text-sm">
+                  <div key={`${course.name}-${course.teacher}-${course.section}-${course.roomNumber}`} className="p-3 rounded-md bg-muted/50 text-sm">
                     <div className="flex items-start justify-between">
                         <div>
                             <p className="font-semibold">{course.name}</p>
                             <p className="text-muted-foreground text-xs">{course.teacher}</p>
+                            <p className="text-muted-foreground text-xs">Sec: {course.section}, Room: {course.roomNumber}</p>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveCourse(course.name, course.teacher)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveCourse(course.name, course.teacher, course.section, course.roomNumber)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </div>
