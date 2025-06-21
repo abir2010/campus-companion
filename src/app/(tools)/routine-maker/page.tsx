@@ -166,187 +166,187 @@ export default function RoutineMakerPage() {
 
   const courseList = Object.values(groupedClasses);
 
-  const getPrintableHtml = (classes: Class[], uniqueCourseNames: string[]): string => {
-    const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    const accentForeground = getComputedStyle(document.documentElement).getPropertyValue('--accent-foreground').trim();
-    const chart1 = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim();
-    const chart2 = getComputedStyle(document.documentElement).getPropertyValue('--chart-2').trim();
-    const chart4 = getComputedStyle(document.documentElement).getPropertyValue('--chart-4').trim();
-    const chart5 = getComputedStyle(document.documentElement).getPropertyValue('--chart-5').trim();
-    const background = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
-    const foreground = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim();
-    const mutedForeground = getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim();
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-
-    const colorSchemes = [
-        { bg: `hsl(${primary} / 0.1)`, border: `hsl(${primary} / 0.4)`, text: `hsl(${primary})`},
-        { bg: `hsl(${accent} / 0.15)`, border: `hsl(${accent} / 0.4)`, text: `hsl(${accentForeground})`},
-        { bg: `hsl(${chart1} / 0.1)`, border: `hsl(${chart1} / 0.4)`, text: `hsl(${chart1})`},
-        { bg: `hsl(${chart2} / 0.1)`, border: `hsl(${chart2} / 0.4)`, text: `hsl(${chart2})`},
-        { bg: `hsl(${chart4} / 0.1)`, border: `hsl(${chart4} / 0.4)`, text: `hsl(${chart4})`},
-        { bg: `hsl(${chart5} / 0.1)`, border: `hsl(${chart5} / 0.4)`, text: `hsl(${chart5})`},
-    ];
-
-    let courseStyles = '';
-    uniqueCourseNames.forEach((name, index) => {
-        const scheme = colorSchemes[index % colorSchemes.length];
-        const className = `course-color-${index}`;
-        courseStyles += `
-            .${className} {
-                background-color: ${scheme.bg} !important;
-                border-color: ${scheme.border} !important;
-                color: ${scheme.text} !important;
-            }
-        `;
-    });
-
-    const baseCss = `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        .page {
-            width: 297mm;
-            height: 210mm;
-            margin: auto;
-            background: white;
-            padding: 0.75cm;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-        @page { size: A4 landscape; margin: 0; }
-
-        .routine-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .routine-table th, .routine-table td {
-            border: 1px solid hsl(${border});
-            text-align: center;
-        }
-
-        .routine-table th {
-            background-color: hsl(${muted}) !important;
-            font-weight: 600;
-            font-size: 13px;
-            color: hsl(${foreground});
-            padding: 6px;
-        }
-        
-        .time-cell {
-            font-size: 10px;
-            font-weight: 500;
-            color: hsl(${mutedForeground});
-            width: 90px;
-            vertical-align: middle;
-            padding: 4px;
-        }
-        .time-cell p { margin: 0; }
-
-        .class-cell {
-            padding: 2px;
-            height: 80px;
-        }
-
-        .class-card {
-            padding: 4px;
-            border-radius: 4px;
-            height: 100%;
-            width: 100%;
-            border: 1px solid;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            text-align: left;
-            font-size: 11px;
-            box-sizing: border-box;
-        }
-        
-        .class-card .course-name { font-weight: 700; font-size: 12px; line-height: 1.2; white-space: normal; }
-        .class-card .teacher-name { font-size: 10px; opacity: 0.8; }
-        .class-card .details { font-size: 10px; opacity: 0.8; margin-top: auto; display: flex; justify-content: space-between; }
-        
-        .lunch-cell {
-            background-color: hsl(${muted}) !important;
-            font-weight: 600;
-            font-size: 14px;
-            color: hsl(${mutedForeground});
-            vertical-align: middle;
-        }
-        
-        h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 22pt;
-        }
-        ${courseStyles}
-    `;
-
-    let tableHtml = `<table class="routine-table"><thead><tr><th class="time-cell"></th>`;
-    daysOfWeek.forEach(day => {
-        tableHtml += `<th>${day}</th>`;
-    });
-    tableHtml += `</tr></thead><tbody>`;
-    
-    timePeriods.forEach(period => {
-        tableHtml += `<tr>`;
-        if (period.isBreak) {
-            tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
-            tableHtml += `<td class="lunch-cell" colspan="${daysOfWeek.length}">LUNCH</td>`;
-        } else {
-             tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
-            daysOfWeek.forEach(day => {
-                const classItem = classes.find(c => c.day === day && c.period === period.time);
-                tableHtml += `<td class="class-cell">`;
-                if (classItem) {
-                    const courseNameIndex = uniqueCourseNames.indexOf(classItem.name);
-                    tableHtml += `
-                        <div class="class-card course-color-${courseNameIndex}">
-                            <p class="course-name">${classItem.name}</p>
-                            <p class="teacher-name">${classItem.teacher}</p>
-                            <div class="details">
-                              <span>Sec: ${classItem.section}</span>
-                              <span>Room: ${classItem.roomNumber}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                tableHtml += `</td>`;
-            });
-        }
-        tableHtml += `</tr>`;
-    });
-    
-    tableHtml += `</tbody></table>`;
-    
-    return `
-        <html>
-            <head>
-                <title>Weekly Class Routine</title>
-                <style>${baseCss}</style>
-            </head>
-            <body>
-                <div class="page">
-                    <h1>Weekly Class Routine</h1>
-                    ${tableHtml}
-                </div>
-            </body>
-        </html>
-    `;
-  };
-
   const handleDownloadPdf = async () => {
+    const getPrintableHtml = (classes: Class[], uniqueCourseNames: string[]): string => {
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        const accentForeground = getComputedStyle(document.documentElement).getPropertyValue('--accent-foreground').trim();
+        const chart1 = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim();
+        const chart2 = getComputedStyle(document.documentElement).getPropertyValue('--chart-2').trim();
+        const chart4 = getComputedStyle(document.documentElement).getPropertyValue('--chart-4').trim();
+        const chart5 = getComputedStyle(document.documentElement).getPropertyValue('--chart-5').trim();
+        const background = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
+        const foreground = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim();
+        const mutedForeground = getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim();
+        const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+        const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+
+        const colorSchemes = [
+            { bg: `hsl(${primary} / 0.1)`, border: `hsl(${primary} / 0.4)`, text: `hsl(${primary})`},
+            { bg: `hsl(${accent} / 0.15)`, border: `hsl(${accent} / 0.4)`, text: `hsl(${accentForeground})`},
+            { bg: `hsl(${chart1} / 0.1)`, border: `hsl(${chart1} / 0.4)`, text: `hsl(${chart1})`},
+            { bg: `hsl(${chart2} / 0.1)`, border: `hsl(${chart2} / 0.4)`, text: `hsl(${chart2})`},
+            { bg: `hsl(${chart4} / 0.1)`, border: `hsl(${chart4} / 0.4)`, text: `hsl(${chart4})`},
+            { bg: `hsl(${chart5} / 0.1)`, border: `hsl(${chart5} / 0.4)`, text: `hsl(${chart5})`},
+        ];
+
+        let courseStyles = '';
+        uniqueCourseNames.forEach((name, index) => {
+            const scheme = colorSchemes[index % colorSchemes.length];
+            const className = `course-color-${index}`;
+            courseStyles += `
+                .${className} {
+                    background-color: ${scheme.bg} !important;
+                    border-color: ${scheme.border} !important;
+                    color: ${scheme.text} !important;
+                }
+            `;
+        });
+
+        const baseCss = `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
+            body {
+                font-family: 'Inter', sans-serif;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .page {
+                width: 297mm;
+                height: 210mm;
+                margin: auto;
+                background: white;
+                padding: 0.75cm;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+            }
+            @page { size: A4 landscape; margin: 0; }
+
+            .routine-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+
+            .routine-table th, .routine-table td {
+                border: 1px solid hsl(${border});
+                text-align: center;
+            }
+
+            .routine-table th {
+                background-color: hsl(${muted}) !important;
+                font-weight: 600;
+                font-size: 13px;
+                color: hsl(${foreground});
+                padding: 6px;
+            }
+            
+            .time-cell {
+                font-size: 10px;
+                font-weight: 500;
+                color: hsl(${mutedForeground});
+                width: 90px;
+                vertical-align: middle;
+                padding: 4px;
+            }
+            .time-cell p { margin: 0; }
+
+            .class-cell {
+                padding: 2px;
+                height: 80px;
+            }
+
+            .class-card {
+                padding: 4px;
+                border-radius: 4px;
+                height: 100%;
+                width: 100%;
+                border: 1px solid;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                text-align: left;
+                font-size: 11px;
+                box-sizing: border-box;
+            }
+            
+            .class-card .course-name { font-weight: 700; font-size: 12px; line-height: 1.2; white-space: normal; }
+            .class-card .teacher-name { font-size: 10px; opacity: 0.8; }
+            .class-card .details { font-size: 10px; opacity: 0.8; margin-top: auto; display: flex; justify-content: space-between; }
+            
+            .lunch-cell {
+                background-color: hsl(${muted}) !important;
+                font-weight: 600;
+                font-size: 14px;
+                color: hsl(${mutedForeground});
+                vertical-align: middle;
+            }
+            
+            h1 {
+                font-family: 'Space Grotesk', sans-serif;
+                text-align: center;
+                margin-bottom: 15px;
+                font-size: 22pt;
+            }
+            ${courseStyles}
+        `;
+
+        let tableHtml = `<table class="routine-table"><thead><tr><th class="time-cell"></th>`;
+        daysOfWeek.forEach(day => {
+            tableHtml += `<th>${day}</th>`;
+        });
+        tableHtml += `</tr></thead><tbody>`;
+        
+        timePeriods.forEach(period => {
+            tableHtml += `<tr>`;
+            if (period.isBreak) {
+                tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
+                tableHtml += `<td class="lunch-cell" colspan="${daysOfWeek.length}">LUNCH</td>`;
+            } else {
+                 tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
+                daysOfWeek.forEach(day => {
+                    const classItem = classes.find(c => c.day === day && c.period === period.time);
+                    tableHtml += `<td class="class-cell">`;
+                    if (classItem) {
+                        const courseNameIndex = uniqueCourseNames.indexOf(classItem.name);
+                        tableHtml += `
+                            <div class="class-card course-color-${courseNameIndex}">
+                                <p class="course-name">${classItem.name}</p>
+                                <p class="teacher-name">${classItem.teacher}</p>
+                                <div class="details">
+                                  <span>Sec: ${classItem.section}</span>
+                                  <span>Room: ${classItem.roomNumber}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    tableHtml += `</td>`;
+                });
+            }
+            tableHtml += `</tr>`;
+        });
+        
+        tableHtml += `</tbody></table>`;
+        
+        return `
+            <html>
+                <head>
+                    <title>Weekly Class Routine</title>
+                    <style>${baseCss}</style>
+                </head>
+                <body>
+                    <div class="page">
+                        <h1>Weekly Class Routine</h1>
+                        ${tableHtml}
+                    </div>
+                </body>
+            </html>
+        `;
+    };
+
     const printableHtml = getPrintableHtml(classes, uniqueCourseNames);
     
     const printContainer = document.createElement('div');
