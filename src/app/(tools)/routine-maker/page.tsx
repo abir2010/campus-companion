@@ -382,7 +382,15 @@ export default function RoutineMakerPage() {
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('class-routine.pdf');
+        
+        // Use data URI to trigger download for better mobile compatibility
+        const pdfData = pdf.output('datauristring');
+        const link = document.createElement('a');
+        link.href = pdfData;
+        link.download = 'class-routine.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
     } catch (error) {
         console.error("Error generating PDF:", error);

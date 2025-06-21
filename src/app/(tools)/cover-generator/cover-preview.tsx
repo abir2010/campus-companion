@@ -64,7 +64,15 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('cover-page.pdf');
+      
+      // Use data URI to trigger download for better mobile compatibility
+      const pdfData = pdf.output('datauristring');
+      const link = document.createElement('a');
+      link.href = pdfData;
+      link.download = 'cover-page.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -221,7 +229,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
         </CardHeader>
         <CardContent>
           {/* This is the visible preview, which is responsive and may be scaled down. */}
-          <div className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm overflow-hidden">
+          <div className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm">
             <CoverPageLayout design={design} renderPreview={renderPreview} />
           </div>
         </CardContent>
