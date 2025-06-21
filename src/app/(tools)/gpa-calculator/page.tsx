@@ -18,8 +18,30 @@ type Course = {
 };
 
 const gradePoints: { [key: string]: number } = {
-  'A+': 4.0, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0,
+  'A+': 4.00,
+  'A': 3.75,
+  'A-': 3.50,
+  'B+': 3.25,
+  'B': 3.00,
+  'B-': 2.75,
+  'C+': 2.50,
+  'C': 2.25,
+  'D': 2.00,
+  'F': 0.00,
 };
+
+const gradingScale = [
+  { marks: "80% or above", grade: "A+", points: 4.00, remarks: "Excellent" },
+  { marks: "75% to less than 80%", grade: "A", points: 3.75, remarks: "Very Good" },
+  { marks: "70% to less than 75%", grade: "A-", points: 3.50, remarks: "" },
+  { marks: "65% to less than 70%", grade: "B+", points: 3.25, remarks: "Good" },
+  { marks: "60% to less than 65%", grade: "B", points: 3.00, remarks: "" },
+  { marks: "55% to less than 60%", grade: "B-", points: 2.75, remarks: "Satisfactory" },
+  { marks: "50% to less than 55%", grade: "C+", points: 2.50, remarks: "" },
+  { marks: "45% to less than 50%", grade: "C", points: 2.25, remarks: "Pass" },
+  { marks: "40% to less than 45%", grade: "D", points: 2.00, remarks: "" },
+  { marks: "less than 40%", grade: "F", points: 0.00, remarks: "Fail" },
+];
 
 export default function GpaCalculatorPage() {
   const [courses, setCourses] = useState<Course[]>([
@@ -61,6 +83,34 @@ export default function GpaCalculatorPage() {
         title="GPA Calculator"
         description="Calculate your semester and cumulative GPA by adding your courses."
       />
+      
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Official Grading Scale</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Marks (%)</TableHead>
+                <TableHead>Letter Grade</TableHead>
+                <TableHead>Grade Points</TableHead>
+                <TableHead>Remarks/Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {gradingScale.map((item) => (
+                <TableRow key={item.grade}>
+                  <TableCell>{item.marks}</TableCell>
+                  <TableCell className="font-medium">{item.grade}</TableCell>
+                  <TableCell>{item.points.toFixed(2)}</TableCell>
+                  <TableCell>{item.remarks}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
