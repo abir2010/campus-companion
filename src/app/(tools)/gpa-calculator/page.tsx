@@ -21,19 +21,6 @@ const gradePoints: { [key: string]: number } = {
   'A+': 4.0, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0,
 };
 
-const gradingScale = [
-  { grade: "A+", marks: "80-100", points: 4.0 },
-  { grade: "A", marks: "75-79", points: 4.0 },
-  { grade: "A-", marks: "70-74", points: 3.7 },
-  { grade: "B+", marks: "65-69", points: 3.3 },
-  { grade: "B", marks: "60-64", points: 3.0 },
-  { grade: "B-", marks: "55-59", points: 2.7 },
-  { grade: "C+", marks: "50-54", points: 2.3 },
-  { grade: "C", marks: "45-49", points: 2.0 },
-  { grade: "D", marks: "40-44", points: 1.0 },
-  { grade: "F", marks: "Below 40", points: 0.0 },
-];
-
 export default function GpaCalculatorPage() {
   const [courses, setCourses] = useState<Course[]>([
     { id: 1, name: "Intro to Programming", credits: 3, grade: "A" },
@@ -133,31 +120,6 @@ export default function GpaCalculatorPage() {
         </div>
         
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Grading Scale</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Grade</TableHead>
-                                <TableHead>Marks Range</TableHead>
-                                <TableHead className="text-right">Points</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {gradingScale.map((item) => (
-                                <TableRow key={item.grade}>
-                                    <TableCell className="font-medium">{item.grade}</TableCell>
-                                    <TableCell>{item.marks}</TableCell>
-                                    <TableCell className="text-right">{item.points.toFixed(2)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Cumulative GPA</CardTitle>
