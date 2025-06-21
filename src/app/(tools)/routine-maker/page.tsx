@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PageHeader } from "@/components/page-header";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useId, useMemo, type FormEvent } from "react";
-import { PlusCircle, Trash2, X } from "lucide-react";
+import { PlusCircle, Trash2, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
@@ -164,6 +163,210 @@ export default function RoutineMakerPage() {
 
   const courseList = Object.values(groupedClasses);
 
+  const getPrintableHtml = (classes: Class[], uniqueCourseNames: string[]): string => {
+    const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const accentForeground = getComputedStyle(document.documentElement).getPropertyValue('--accent-foreground').trim();
+    const chart1 = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim();
+    const chart2 = getComputedStyle(document.documentElement).getPropertyValue('--chart-2').trim();
+    const chart4 = getComputedStyle(document.documentElement).getPropertyValue('--chart-4').trim();
+    const chart5 = getComputedStyle(document.documentElement).getPropertyValue('--chart-5').trim();
+    const background = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
+    const foreground = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim();
+    const mutedForeground = getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim();
+    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+
+    const colorSchemes = [
+        { bg: `hsl(${primary} / 0.1)`, border: `hsl(${primary} / 0.4)`, text: `hsl(${primary})`},
+        { bg: `hsl(${accent} / 0.15)`, border: `hsl(${accent} / 0.4)`, text: `hsl(${accentForeground})`},
+        { bg: `hsl(${chart1} / 0.1)`, border: `hsl(${chart1} / 0.4)`, text: `hsl(${chart1})`},
+        { bg: `hsl(${chart2} / 0.1)`, border: `hsl(${chart2} / 0.4)`, text: `hsl(${chart2})`},
+        { bg: `hsl(${chart4} / 0.1)`, border: `hsl(${chart4} / 0.4)`, text: `hsl(${chart4})`},
+        { bg: `hsl(${chart5} / 0.1)`, border: `hsl(${chart5} / 0.4)`, text: `hsl(${chart5})`},
+    ];
+
+    let courseStyles = '';
+    uniqueCourseNames.forEach((name, index) => {
+        const scheme = colorSchemes[index % colorSchemes.length];
+        const className = `course-color-${index}`;
+        courseStyles += `
+            .${className} {
+                background-color: ${scheme.bg} !important;
+                border-color: ${scheme.border} !important;
+                color: ${scheme.text} !important;
+            }
+        `;
+    });
+
+    const baseCss = `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .page {
+            width: 297mm;
+            height: 210mm;
+            margin: auto;
+            background: white;
+            padding: 1cm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        @page { size: A4 landscape; margin: 0; }
+
+        .routine-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .routine-table th, .routine-table td {
+            border: 1px solid hsl(${border});
+            text-align: center;
+        }
+
+        .routine-table th {
+            background-color: hsl(${muted}) !important;
+            font-weight: 600;
+            font-size: 14px;
+            color: hsl(${foreground});
+            padding: 8px;
+        }
+        
+        .time-cell {
+            font-size: 11px;
+            font-weight: 500;
+            color: hsl(${mutedForeground});
+            width: 90px;
+            vertical-align: middle;
+            padding: 4px;
+        }
+        .time-cell p { margin: 0; }
+
+        .class-cell {
+            padding: 2px;
+            height: 90px;
+        }
+
+        .class-card {
+            padding: 6px;
+            border-radius: 6px;
+            height: 100%;
+            width: 100%;
+            border: 1px solid;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            text-align: left;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        
+        .class-card .course-name { font-weight: 700; font-size: 13px; line-height: 1.2; white-space: normal; }
+        .class-card .teacher-name { font-size: 11px; opacity: 0.8; }
+        .class-card .details { font-size: 11px; opacity: 0.8; margin-top: auto; display: flex; justify-content: space-between; }
+        
+        .lunch-cell {
+            background-color: hsl(${muted}) !important;
+            font-weight: 600;
+            font-size: 14px;
+            color: hsl(${mutedForeground});
+            vertical-align: middle;
+        }
+        
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24pt;
+        }
+        ${courseStyles}
+    `;
+
+    const printScript = `
+        <script>
+            window.onload = function() {
+                setTimeout(function() {
+                    window.focus();
+                    window.print();
+                    window.close();
+                }, 250);
+            }
+        </script>
+    `;
+
+    let tableHtml = `<table class="routine-table"><thead><tr><th class="time-cell"></th>`;
+    daysOfWeek.forEach(day => {
+        tableHtml += `<th>${day}</th>`;
+    });
+    tableHtml += `</tr></thead><tbody>`;
+    
+    timePeriods.forEach(period => {
+        tableHtml += `<tr>`;
+        if (period.isBreak) {
+            tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
+            tableHtml += `<td class="lunch-cell" colspan="${daysOfWeek.length}">LUNCH</td>`;
+        } else {
+             tableHtml += `<td class="time-cell"><p class="font-semibold">${period.name}</p><p>${period.time}</p></td>`;
+            daysOfWeek.forEach(day => {
+                const classItem = classes.find(c => c.day === day && c.period === period.time);
+                tableHtml += `<td class="class-cell">`;
+                if (classItem) {
+                    const courseNameIndex = uniqueCourseNames.indexOf(classItem.name);
+                    tableHtml += `
+                        <div class="class-card course-color-${courseNameIndex}">
+                            <p class="course-name">${classItem.name}</p>
+                            <p class="teacher-name">${classItem.teacher}</p>
+                            <div class="details">
+                              <span>Sec: ${classItem.section}</span>
+                              <span>Room: ${classItem.roomNumber}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                tableHtml += `</td>`;
+            });
+        }
+        tableHtml += `</tr>`;
+    });
+    
+    tableHtml += `</tbody></table>`;
+    
+    return `
+        <html>
+            <head>
+                <title>Weekly Class Routine</title>
+                <style>${baseCss}</style>
+            </head>
+            <body>
+                <div class="page">
+                    <h1>Weekly Class Routine</h1>
+                    ${tableHtml}
+                </div>
+                ${printScript}
+            </body>
+        </html>
+    `;
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Please allow popups to download the PDF.");
+      return;
+    }
+    const printableHtml = getPrintableHtml(classes, uniqueCourseNames);
+    printWindow.document.write(printableHtml);
+    printWindow.document.close();
+  };
+
   return (
     <div>
       <PageHeader
@@ -180,20 +383,20 @@ export default function RoutineMakerPage() {
             <CardContent>
               <form onSubmit={handleAddCourse} className="space-y-4">
                 <div className="space-y-1">
-                  <Label htmlFor={`${formId}-name`}>Course Name</Label>
-                  <Input id={`${formId}-name`} name="name" value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="e.g., Calculus I" required/>
+                  <Label htmlFor={\`\${formId}-name\`}>Course Name</Label>
+                  <Input id={\`\${formId}-name\`} name="name" value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="e.g., Calculus I" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={`${formId}-teacher`}>Teacher</Label>
-                  <Input id={`${formId}-teacher`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
+                  <Label htmlFor={\`\${formId}-teacher\`}>Teacher</Label>
+                  <Input id={\`\${formId}-teacher\`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={`${formId}-section`}>Section</Label>
-                  <Input id={`${formId}-section`} name="section" value={section} onChange={(e) => setSection(e.target.value)} placeholder="e.g., A" required/>
+                  <Label htmlFor={\`\${formId}-section\`}>Section</Label>
+                  <Input id={\`\${formId}-section\`} name="section" value={section} onChange={(e) => setSection(e.target.value)} placeholder="e.g., A" required/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={`${formId}-room`}>Room Number</Label>
-                  <Input id={`${formId}-room`} name="room" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 501" required/>
+                  <Label htmlFor={\`\${formId}-room\`}>Room Number</Label>
+                  <Input id={\`\${formId}-room\`} name="room" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 501" required/>
                 </div>
                 
                 <Separator />
@@ -231,7 +434,7 @@ export default function RoutineMakerPage() {
                       <Select name="period" value={currentPeriod} onValueChange={setCurrentPeriod}>
                         <SelectTrigger><SelectValue/></SelectTrigger>
                         <SelectContent>
-                          {classPeriods.map(p => <SelectItem key={p.time} value={p.time}>{p.name}</SelectItem>)}
+                          {classPeriods.map(p => <SelectItem key={p.time} value={p.time}>{p.name} ({p.time})</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -256,7 +459,7 @@ export default function RoutineMakerPage() {
             <CardContent className="max-h-80 overflow-y-auto">
               <div className="space-y-3">
                 {courseList.length > 0 ? courseList.map(course => (
-                  <div key={`${course.name}-${course.teacher}-${course.section}-${course.roomNumber}`} className="p-3 rounded-md bg-muted/50 text-sm">
+                  <div key={\`\${course.name}-\${course.teacher}-\${course.section}-\${course.roomNumber}\`} className="p-3 rounded-md bg-muted/50 text-sm">
                     <div className="flex items-start justify-between">
                         <div>
                             <p className="font-semibold">{course.name}</p>
@@ -280,42 +483,51 @@ export default function RoutineMakerPage() {
         </div>
         
         <div className="lg:col-span-3">
-            <Card className="overflow-hidden">
-                <div className="overflow-x-auto">
-                    <div className="grid grid-cols-[auto_repeat(5,minmax(0,1fr))] min-w-[700px]">
-                        <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20"></div>
-                        {daysOfWeek.map(day => (
-                            <div key={day} className="text-center text-sm font-semibold py-2 border-b border-l sticky top-0 bg-background/95 backdrop-blur-sm z-20">
-                                {day}
-                            </div>
-                        ))}
-                        {timePeriods.map((period) => (
-                             <div key={period.time} className={cn("contents")}>
-                                <div className={cn("text-xs text-muted-foreground text-right pr-2 py-4 border-r", !period.isBreak && 'border-t')}>
-                                    <p className="font-medium">{period.name}</p>
-                                    <p>{period.time}</p>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Your Weekly Routine</CardTitle>
+                    <Button onClick={handlePrint} variant="outline" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download PDF
+                    </Button>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <div className="grid grid-cols-[auto_repeat(5,minmax(0,1fr))] min-w-[700px]">
+                            <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20"></div>
+                            {daysOfWeek.map(day => (
+                                <div key={day} className="text-center text-sm font-semibold py-2 border-b border-l sticky top-0 bg-background/95 backdrop-blur-sm z-20">
+                                    {day}
                                 </div>
-                                {daysOfWeek.map(day => {
-                                    if (period.isBreak) {
+                            ))}
+                            {timePeriods.map((period) => (
+                                 <div key={period.time} className={cn("contents")}>
+                                    <div className={cn("text-xs text-muted-foreground text-right pr-2 py-4 border-r", !period.isBreak && 'border-t')}>
+                                        <p className="font-medium">{period.name}</p>
+                                        <p>{period.time}</p>
+                                    </div>
+                                    {daysOfWeek.map(day => {
+                                        if (period.isBreak) {
+                                            return (
+                                                <div key={\`\${day}-\${period.time}\`} className="bg-muted/50 border-l flex items-center justify-center">
+                                                    {day === 'Monday' && <div className="text-sm font-semibold text-muted-foreground -rotate-90 whitespace-nowrap">LUNCH</div>}
+                                                </div>
+                                            )
+                                        }
+                                        const classItem = classes.find(c => c.day === day && c.period === period.time);
+                                        const courseNameIndex = classItem ? uniqueCourseNames.indexOf(classItem.name) : -1;
+                                        
                                         return (
-                                            <div key={`${day}-${period.time}`} className="bg-muted/50 border-l flex items-center justify-center">
-                                                {day === 'Saturday' && <div className="text-sm font-semibold text-muted-foreground -rotate-90 whitespace-nowrap">LUNCH</div>}
+                                            <div key={\`\${day}-\${period.time}\`} className="border-l border-t p-1 min-h-[90px]">
+                                                {classItem && <ClassCard classItem={classItem} colorIndex={courseNameIndex} />}
                                             </div>
                                         )
-                                    }
-                                    const classItem = classes.find(c => c.day === day && c.period === period.time);
-                                    const courseNameIndex = classItem ? uniqueCourseNames.indexOf(classItem.name) : -1;
-                                    
-                                    return (
-                                        <div key={`${day}-${period.time}`} className="border-l border-t p-1 min-h-[90px]">
-                                            {classItem && <ClassCard classItem={classItem} colorIndex={courseNameIndex} />}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        ))}
+                                    })}
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </CardContent>
             </Card>
         </div>
       </div>
