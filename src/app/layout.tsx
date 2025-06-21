@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ScrollToTop } from '@/components/scroll-to-top';
 
 export const metadata: Metadata = {
   title: 'IIUC Companion',
@@ -22,8 +24,16 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+          <ScrollToTop />
+        </ThemeProvider>
       </body>
     </html>
   );

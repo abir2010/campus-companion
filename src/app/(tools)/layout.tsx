@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ToolsLayout({
   children,
@@ -15,12 +16,15 @@ export default function ToolsLayout({
                 <Link href="/" className="font-headline text-xl font-bold">
                     IIUC Companion
                 </Link>
-                <Button variant="ghost" asChild>
-                    <Link href="/">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
-                    </Link>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" asChild>
+                        <Link href="/">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            Dashboard
+                        </Link>
+                    </Button>
+                    <ThemeToggle />
+                </div>
             </div>
         </header>
         <main className="container mx-auto px-4 py-10">
