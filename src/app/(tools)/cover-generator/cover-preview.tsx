@@ -14,19 +14,41 @@ type CoverPreviewProps = {
   content: CoverPageData;
 };
 
+// A reusable layout for the cover page content to avoid duplication.
+const CoverPageLayout = ({
+  design,
+  renderPreview,
+}: {
+  design: CoverPageData['design'];
+  renderPreview: () => JSX.Element;
+}) => (
+  <div className="relative h-full w-full">
+    {design === 'artistic' && (
+      <>
+        <div className="absolute top-[-50px] left-[-75px] w-48 h-48 bg-primary/5 rounded-full -z-0" />
+        <div
+          className="absolute bottom-[-75px] right-[-75px] w-[220px] h-[220px] bg-gradient-to-tl from-accent/10 to-primary/10 -z-0"
+          style={{ clipPath: 'circle(50% at 100% 100%)' }}
+        />
+      </>
+    )}
+    <div className="h-full w-full bg-white">{renderPreview()}</div>
+  </div>
+);
+
 export function CoverPreview({ content }: CoverPreviewProps) {
-  const previewRef = useRef<HTMLDivElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPdf = async () => {
-    const previewElement = previewRef.current;
-    if (!previewElement) {
-      alert("Could not find the preview element to download.");
+    const printElement = printRef.current;
+    if (!printElement) {
+      alert("Could not find the element to generate PDF from.");
       return;
     }
     
     try {
-      const canvas = await html2canvas(previewElement, {
-        scale: 3, // Higher scale for better quality
+      const canvas = await html2canvas(printElement, {
+        scale: 2, // Use a higher scale for better resolution
         useCORS: true,
         backgroundColor: '#ffffff',
       });
@@ -35,35 +57,13 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
       });
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      
-      const pageAspectRatio = pdfWidth / pdfHeight;
-      const canvasAspectRatio = canvasWidth / canvasHeight;
-
-      let finalImgWidth, finalImgHeight;
-      
-      if (canvasAspectRatio > pageAspectRatio) {
-        // Canvas is wider than page aspect ratio, so fit to width
-        finalImgWidth = pdfWidth;
-        finalImgHeight = finalImgWidth / canvasAspectRatio;
-      } else {
-        // Canvas is taller or same aspect ratio, so fit to height
-        finalImgHeight = pdfHeight;
-        finalImgWidth = finalImgHeight * canvasAspectRatio;
-      }
-      
-      // Center the image
-      const xOffset = (pdfWidth - finalImgWidth) / 2;
-      const yOffset = (pdfHeight - finalImgHeight) / 2;
-
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save('cover-page.pdf');
 
     } catch (error) {
@@ -210,30 +210,29 @@ export function CoverPreview({ content }: CoverPreviewProps) {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="font-headline">Preview</CardTitle>
-        <Button onClick={handleDownloadPdf} variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
-          Download PDF
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div ref={previewRef} className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm">
-           {design === 'artistic' && (
-            <>
-                <div className="absolute top-[-50px] left-[-75px] w-48 h-48 bg-primary/5 rounded-full -z-0" />
-                <div 
-                    className="absolute bottom-[-75px] right-[-75px] w-[220px] h-[220px] bg-gradient-to-tl from-accent/10 to-primary/10 -z-0"
-                    style={{ clipPath: 'circle(50% at 100% 100%)' }}
-                />
-            </>
-           )}
-           <div className="h-full w-full bg-white">
-             {renderPreview()}
-           </div>
+    <>
+      <Card className="w-full">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="font-headline">Preview</CardTitle>
+          <Button onClick={handleDownloadPdf} variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {/* This is the visible preview, which is responsive and may be scaled down. */}
+          <div className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm overflow-hidden">
+            <CoverPageLayout design={design} renderPreview={renderPreview} />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* This is the hidden container used ONLY for PDF generation. It's off-screen and perfectly sized. */}
+      <div className="absolute -left-[9999px] top-auto z-[-1]">
+        <div ref={printRef} className="w-[210mm] h-[297mm]">
+          <CoverPageLayout design={design} renderPreview={renderPreview} />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 }
