@@ -18,7 +18,7 @@ const facultyData = [
 
 const departments = ["All Departments", ...Array.from(new Set(facultyData.map(f => f.department)))];
 
-export default function TeachersPage() {
+export default function FacultyDirectoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
 
@@ -61,8 +61,8 @@ export default function TeachersPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredFaculty.map((faculty, index) => (
-          <Card key={index}>
+        {filteredFaculty.map((faculty) => (
+          <Card key={faculty.email}>
             <CardHeader>
               <CardTitle className="font-headline text-xl flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" /> {faculty.name}
