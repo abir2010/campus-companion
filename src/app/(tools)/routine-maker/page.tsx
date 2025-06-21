@@ -11,6 +11,8 @@ import { useState, useId, useMemo, type FormEvent } from "react";
 import { PlusCircle, Trash2, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type Class = {
   id: string;
@@ -291,18 +293,6 @@ export default function RoutineMakerPage() {
         ${courseStyles}
     `;
 
-    const printScript = `
-        <script>
-            window.onload = function() {
-                setTimeout(function() {
-                    window.focus();
-                    window.print();
-                    window.close();
-                }, 250);
-            }
-        </script>
-    `;
-
     let tableHtml = `<table class="routine-table"><thead><tr><th class="time-cell"></th>`;
     daysOfWeek.forEach(day => {
         tableHtml += `<th>${day}</th>`;
@@ -351,22 +341,57 @@ export default function RoutineMakerPage() {
                     <h1>Weekly Class Routine</h1>
                     ${tableHtml}
                 </div>
-                ${printScript}
             </body>
         </html>
     `;
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert("Please allow popups to download the PDF.");
-      return;
-    }
+  const handleDownloadPdf = async () => {
     const printableHtml = getPrintableHtml(classes, uniqueCourseNames);
-    printWindow.document.write(printableHtml);
-    printWindow.document.close();
+    
+    const printContainer = document.createElement('div');
+    printContainer.innerHTML = printableHtml;
+    
+    const pageToPrint = printContainer.querySelector('.page') as HTMLElement;
+    if (!pageToPrint) {
+        alert("Failed to create printable version of the routine.");
+        return;
+    }
+
+    printContainer.style.position = 'absolute';
+    printContainer.style.left = '-9999px';
+    printContainer.style.top = '0';
+    
+    document.body.appendChild(printContainer);
+
+    try {
+        const canvas = await html2canvas(pageToPrint, {
+            scale: 2,
+            useCORS: true,
+            width: pageToPrint.offsetWidth,
+            height: pageToPrint.offsetHeight,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4',
+        });
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('class-routine.pdf');
+
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("An error occurred while generating the PDF. Please try again.");
+    } finally {
+       document.body.removeChild(printContainer);
+    }
   };
+
 
   return (
     <div>
@@ -487,7 +512,7 @@ export default function RoutineMakerPage() {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Your Weekly Routine</CardTitle>
-                    <Button onClick={handlePrint} variant="outline" size="sm">
+                    <Button onClick={handleDownloadPdf} variant="outline" size="sm">
                         <Download className="mr-2 h-4 w-4" />
                         Download PDF
                     </Button>
