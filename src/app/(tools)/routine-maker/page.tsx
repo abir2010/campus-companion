@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useId } from "react";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { useState, useId, useMemo, type FormEvent } from "react";
+import { PlusCircle, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 type Class = {
   id: string;
@@ -17,6 +18,11 @@ type Class = {
   teacher: string;
   day: string;
   period: string; 
+};
+
+type Slot = {
+  day: string;
+  period: string;
 };
 
 const daysOfWeek = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
@@ -65,51 +71,83 @@ const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: nu
 export default function RoutineMakerPage() {
   const [classes, setClasses] = useState<Class[]>([
     { id: '1', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Monday', period: '10:40 - 11:30' },
+    { id: '1-2', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Wednesday', period: '12:20 - 13:10' },
     { id: '2', name: 'Algorithms', teacher: 'Dr. Ada Lovelace', day: 'Wednesday', period: '13:50 - 14:40' },
     { id: '3', name: 'Data Structures', teacher: 'Dr. Alan Turing', day: 'Tuesday', period: '11:30 - 12:20' },
   ]);
 
-  const [newClass, setNewClass] = useState({
-    name: '',
-    teacher: '',
-    day: 'Saturday',
-    period: classPeriods[0].time,
-  });
+  const [courseName, setCourseName] = useState('');
+  const [teacher, setTeacher] = useState('');
+  const [slots, setSlots] = useState<Slot[]>([]);
+  
+  const [currentDay, setCurrentDay] = useState('Saturday');
+  const [currentPeriod, setCurrentPeriod] = useState(classPeriods[0].time);
   
   const formId = useId();
 
-  const handleAddClass = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newClass.name || !newClass.teacher) {
-      alert("Please fill out all fields.");
+  const handleAddSlot = () => {
+    const isSlotTakenInGrid = classes.some(c => c.day === currentDay && c.period === currentPeriod);
+    if (isSlotTakenInGrid) {
+      alert(`There is already a class scheduled for ${currentDay} during ${currentPeriod} in your main routine.`);
       return;
     }
     
-    const conflict = classes.find(c => c.day === newClass.day && c.period === newClass.period);
-    if (conflict) {
-        alert(`There is already a class scheduled for ${newClass.day} during ${newClass.period}.`);
-        return;
+    const isSlotTakenInCurrentList = slots.some(s => s.day === currentDay && s.period === currentPeriod);
+    if (isSlotTakenInCurrentList) {
+      alert(`You have already added this time slot for the current course.`);
+      return;
     }
 
-    setClasses([...classes, { ...newClass, id: Date.now().toString() }]);
-    setNewClass({ name: '', teacher: '', day: 'Saturday', period: classPeriods[0].time });
-  };
-
-  const handleRemoveClass = (id: string) => {
-    setClasses(classes.filter(c => c.id !== id));
+    setSlots(prev => [...prev, { day: currentDay, period: currentPeriod }]);
   };
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewClass(prev => ({ ...prev, [name]: value }));
+  const handleRemoveSlot = (index: number) => {
+    setSlots(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setNewClass(prev => ({ ...prev, [name]: value }));
+  const handleAddCourse = (e: FormEvent) => {
+    e.preventDefault();
+    if (!courseName || !teacher || slots.length === 0) {
+      alert("Please provide a course name, teacher, and at least one time slot.");
+      return;
+    }
+
+    const newClasses: Class[] = slots.map((slot, i) => ({
+      id: `${Date.now()}-${i}`,
+      name: courseName,
+      teacher: teacher,
+      ...slot
+    }));
+
+    setClasses(prev => [...prev, ...newClasses]);
+    
+    // Reset form
+    setCourseName('');
+    setTeacher('');
+    setSlots([]);
   };
-  
+
+  const handleRemoveCourse = (courseName: string, teacher: string) => {
+    setClasses(prev => prev.filter(c => !(c.name === courseName && c.teacher === teacher)));
+  };
+
   const uniqueCourseNames = [...new Set(classes.map(c => c.name))];
   
+  const groupedClasses = useMemo(() => {
+    return classes.reduce((acc, c) => {
+        const key = `${c.name}|${c.teacher}`;
+        if (!acc[key]) {
+            acc[key] = { name: c.name, teacher: c.teacher, schedules: [] };
+        }
+        acc[key].schedules.push({ id: c.id, day: c.day, period: c.period });
+        // Sort schedules for consistent display
+        acc[key].schedules.sort((a,b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day) || a.period.localeCompare(b.period));
+        return acc;
+    }, {} as Record<string, {name: string, teacher: string, schedules: {id: string, day: string, period: string}[]}>);
+  }, [classes]);
+
+  const courseList = Object.values(groupedClasses);
+
   return (
     <div>
       <PageHeader
@@ -121,38 +159,67 @@ export default function RoutineMakerPage() {
         <div className="lg:col-span-1 space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Add a Class</CardTitle>
+              <CardTitle>Add Course</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleAddClass} className="space-y-4">
+              <form onSubmit={handleAddCourse} className="space-y-4">
                 <div className="space-y-1">
                   <Label htmlFor={`${formId}-name`}>Course Name</Label>
-                  <Input id={`${formId}-name`} name="name" value={newClass.name} onChange={handleInputChange} placeholder="e.g., Calculus I" required/>
+                  <Input id={`${formId}-name`} name="name" value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="e.g., Calculus I" required/>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor={`${formId}-teacher`}>Teacher</Label>
-                  <Input id={`${formId}-teacher`} name="teacher" value={newClass.teacher} onChange={handleInputChange} placeholder="e.g., Prof. Einstein" required/>
+                  <Input id={`${formId}-teacher`} name="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g., Prof. Einstein" required/>
                 </div>
-                <div className="space-y-1">
-                  <Label>Day</Label>
-                  <Select name="day" value={newClass.day} onValueChange={(v) => handleSelectChange('day', v)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                      {daysOfWeek.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                
+                <Separator />
+
+                <div className="space-y-2">
+                    <Label>Time Slots</Label>
+                    <div className="space-y-2 rounded-md bg-muted/50 p-2">
+                      {slots.length > 0 ? (
+                        slots.map((slot, index) => (
+                          <div key={index} className="flex items-center justify-between text-sm bg-background p-2 rounded-md">
+                            <span>{slot.day}, {slot.period}</span>
+                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveSlot(index)}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-center text-muted-foreground py-2">No time slots added.</p>
+                      )}
+                    </div>
                 </div>
-                <div className="space-y-1">
-                  <Label>Period</Label>
-                  <Select name="period" value={newClass.period} onValueChange={(v) => handleSelectChange('period', v)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                      {classPeriods.map(p => <SelectItem key={p.time} value={p.time}>{p.name} ({p.time})</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-end">
+                    <div className="space-y-1">
+                      <Label>Day</Label>
+                      <Select name="day" value={currentDay} onValueChange={setCurrentDay}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>
+                          {daysOfWeek.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Period</Label>
+                      <Select name="period" value={currentPeriod} onValueChange={setCurrentPeriod}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>
+                          {classPeriods.map(p => <SelectItem key={p.time} value={p.time}>{p.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
                 </div>
+                 <Button type="button" variant="outline" className="w-full" onClick={handleAddSlot}>
+                    Add Time Slot
+                </Button>
+
+                <Separator />
+
                 <Button type="submit" className="w-full">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Class
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Course to Routine
                 </Button>
               </form>
             </CardContent>
@@ -160,21 +227,28 @@ export default function RoutineMakerPage() {
           
           <Card>
             <CardHeader>
-              <CardTitle>Class List</CardTitle>
+              <CardTitle>Course List</CardTitle>
             </CardHeader>
-            <CardContent className="max-h-60 overflow-y-auto">
-              <div className="space-y-2">
-                {classes.length > 0 ? classes.sort((a,b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day) || a.period.localeCompare(b.period)).map(c => (
-                  <div key={c.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                    <div className="text-sm">
-                      <p className="font-semibold">{c.name}</p>
-                      <p className="text-muted-foreground">{c.day}, {c.period}</p>
+            <CardContent className="max-h-80 overflow-y-auto">
+              <div className="space-y-3">
+                {courseList.length > 0 ? courseList.map(course => (
+                  <div key={`${course.name}-${course.teacher}`} className="p-3 rounded-md bg-muted/50 text-sm">
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <p className="font-semibold">{course.name}</p>
+                            <p className="text-muted-foreground text-xs">{course.teacher}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveCourse(course.name, course.teacher)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveClass(c.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="mt-2 space-y-1 pl-2 border-l-2 border-primary/20">
+                      {course.schedules.map(sch => (
+                         <p key={sch.id} className="text-xs text-muted-foreground">{sch.day}, {sch.period}</p>
+                      ))}
+                    </div>
                   </div>
-                )) : <p className="text-sm text-muted-foreground text-center py-4">No classes added yet.</p>}
+                )) : <p className="text-sm text-muted-foreground text-center py-4">No courses added yet.</p>}
               </div>
             </CardContent>
           </Card>
