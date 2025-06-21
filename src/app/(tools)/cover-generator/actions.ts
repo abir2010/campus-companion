@@ -4,6 +4,7 @@ import { generateCoverPage, GenerateCoverPageInput, GenerateCoverPageOutput } fr
 import { z } from 'zod';
 
 const formSchema = z.object({
+  design: z.enum(['artistic', 'minimalist', 'modern', 'classic']),
   coverType: z.enum(['assignment', 'lab-report']),
   assignmentTitle: z.string().min(1, 'Assignment title is required.'),
   courseName: z.string().min(1, 'Course name is required.'),

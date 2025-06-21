@@ -12,6 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateCoverPageInputSchema = z.object({
+  design: z.enum(['artistic', 'minimalist', 'modern', 'classic']).describe('The design template for the cover page.'),
   coverType: z.enum(['assignment', 'lab-report']).describe('The type of cover page to generate.'),
   assignmentTitle: z.string().describe('The title of the assignment or lab report.'),
   courseName: z.string().describe('The name of the course.'),
@@ -26,7 +27,8 @@ const GenerateCoverPageInputSchema = z.object({
 export type GenerateCoverPageInput = z.infer<typeof GenerateCoverPageInputSchema>;
 
 const GenerateCoverPageOutputSchema = z.object({
-    title: z.string().describe('The main title for the cover page, like "Assignment Cover" or "Lab Report".'),
+    design: z.enum(['artistic', 'minimalist', 'modern', 'classic']).describe('The selected design template.'),
+    title: z.string().describe('The main title for the cover page, like "Assignment" or "Lab Report".'),
     assignmentTitle: z.string().describe('The title of the assignment or lab report.'),
     courseName: z.string().describe('The name of the course.'),
     submittedTo: z.object({
@@ -58,6 +60,7 @@ const prompt = ai.definePrompt({
   Cover Page Type: {{{coverType}}}
   Title: {{{assignmentTitle}}}
   Course Name: {{{courseName}}}
+  Design: {{{design}}}
 
   Submitted To:
   Name: {{{courseTeacherName}}}
@@ -71,8 +74,8 @@ const prompt = ai.definePrompt({
 
   Submission Date: {{{submissionDate}}}
 
-  Based on the cover type, set the main 'title' field in the output. For 'assignment', the title should be 'Assignment Cover', and for 'lab-report', it should be 'Lab Report'.
-  Populate all fields in the output JSON schema accurately based on the provided inputs.
+  Based on the cover type, set the main 'title' field in the output. For 'assignment', the title should be 'Assignment', and for 'lab-report', it should be 'Lab Report'.
+  Populate all fields in the output JSON schema accurately based on the provided inputs. The 'design' field should be passed through from the input.
   `,
 });
 
