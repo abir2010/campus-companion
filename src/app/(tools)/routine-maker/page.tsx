@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useId, useMemo } from "react";
+import { useState, useId } from "react";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,30 +16,24 @@ type Class = {
   name: string;
   teacher: string;
   day: string;
-  startTime: string;
-  endTime: string;
+  period: string; 
 };
 
-const daysOfWeek = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-const timeSlots = Array.from({ length: 10 }, (_, i) => `${(i + 8).toString().padStart(2, '0')}:00`); // 08:00 to 17:00
+const daysOfWeek = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
 
-const timeToMinutes = (time: string) => {
-  if (!time) return 0;
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-};
+const timePeriods = [
+  { name: 'Period 1', time: '10:40 - 11:30' },
+  { name: 'Period 2', time: '11:30 - 12:20' },
+  { name: 'Period 3', time: '12:20 - 13:10' },
+  { name: 'Lunch', time: '13:10 - 13:50', isBreak: true },
+  { name: 'Period 4', time: '13:50 - 14:40' },
+  { name: 'Period 5', time: '14:40 - 15:30' },
+  { name: 'Period 6', time: '15:30 - 16:20' },
+];
+
+const classPeriods = timePeriods.filter(p => !p.isBreak);
 
 const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: number }) => {
-    const scheduleStartMinutes = timeToMinutes('08:00');
-    const scheduleEndMinutes = timeToMinutes('18:00');
-    const totalDuration = scheduleEndMinutes - scheduleStartMinutes;
-
-    const startMinutes = timeToMinutes(classItem.startTime);
-    const endMinutes = timeToMinutes(classItem.endTime);
-
-    const top = ((startMinutes - scheduleStartMinutes) / totalDuration) * 100;
-    const height = ((endMinutes - startMinutes) / totalDuration) * 100;
-
     const colorSchemes = [
         { bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.4)', text: 'hsl(var(--primary))'},
         { bg: 'hsl(var(--accent) / 0.15)', border: 'hsl(var(--accent) / 0.4)', text: 'hsl(var(--accent-foreground))'},
@@ -51,28 +45,18 @@ const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: nu
     
     const scheme = colorSchemes[colorIndex % colorSchemes.length];
 
-    if (top < 0 || height <= 0) return null;
-
     return (
         <div
-            className="absolute w-full p-1 z-10"
+            className="p-2 rounded-lg h-full w-full border flex flex-col overflow-hidden text-left"
             style={{
-                top: `${top}%`,
-                height: `${height}%`,
+                backgroundColor: scheme.bg,
+                borderColor: scheme.border,
+                color: scheme.text
             }}
         >
-            <div
-                className="relative p-2 rounded-lg h-full w-full border flex flex-col overflow-hidden"
-                style={{
-                    backgroundColor: scheme.bg,
-                    borderColor: scheme.border,
-                    color: scheme.text
-                }}
-            >
-                <p className="font-bold text-xs leading-tight truncate">{classItem.name}</p>
-                <p className="text-xs opacity-80 truncate">{classItem.teacher}</p>
-                <p className="text-xs opacity-80 mt-auto">{classItem.startTime} - {classItem.endTime}</p>
-            </div>
+            <p className="font-bold text-sm leading-tight truncate">{classItem.name}</p>
+            <p className="text-xs opacity-80 truncate">{classItem.teacher}</p>
+            <p className="text-xs opacity-80 mt-auto">{classItem.period}</p>
         </div>
     );
 };
@@ -80,17 +64,16 @@ const ClassCard = ({ classItem, colorIndex }: { classItem: Class, colorIndex: nu
 
 export default function RoutineMakerPage() {
   const [classes, setClasses] = useState<Class[]>([
-    { id: '1', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Monday', startTime: '10:00', endTime: '11:30' },
-    { id: '2', name: 'Algorithms', teacher: 'Dr. Ada Lovelace', day: 'Wednesday', startTime: '14:00', endTime: '15:30' },
-    { id: '3', name: 'Data Structures', teacher: 'Dr. Alan Turing', day: 'Tuesday', startTime: '09:00', endTime: '10:30' },
+    { id: '1', name: 'Software Engineering', teacher: 'Dr. Grace Hopper', day: 'Monday', period: '10:40 - 11:30' },
+    { id: '2', name: 'Algorithms', teacher: 'Dr. Ada Lovelace', day: 'Wednesday', period: '13:50 - 14:40' },
+    { id: '3', name: 'Data Structures', teacher: 'Dr. Alan Turing', day: 'Tuesday', period: '11:30 - 12:20' },
   ]);
 
   const [newClass, setNewClass] = useState({
     name: '',
     teacher: '',
-    day: 'Monday',
-    startTime: '09:00',
-    endTime: '10:30',
+    day: 'Saturday',
+    period: classPeriods[0].time,
   });
   
   const formId = useId();
@@ -102,13 +85,14 @@ export default function RoutineMakerPage() {
       return;
     }
     
-    if (timeToMinutes(newClass.startTime) >= timeToMinutes(newClass.endTime)) {
-        alert("End time must be after start time.");
+    const conflict = classes.find(c => c.day === newClass.day && c.period === newClass.period);
+    if (conflict) {
+        alert(`There is already a class scheduled for ${newClass.day} during ${newClass.period}.`);
         return;
     }
 
     setClasses([...classes, { ...newClass, id: Date.now().toString() }]);
-    setNewClass({ name: '', teacher: '', day: 'Monday', startTime: '09:00', endTime: '10:30' });
+    setNewClass({ name: '', teacher: '', day: 'Saturday', period: classPeriods[0].time });
   };
 
   const handleRemoveClass = (id: string) => {
@@ -124,11 +108,13 @@ export default function RoutineMakerPage() {
     setNewClass(prev => ({ ...prev, [name]: value }));
   };
   
+  const uniqueCourseNames = [...new Set(classes.map(c => c.name))];
+  
   return (
     <div>
       <PageHeader
         title="Routine Maker"
-        description="Build and visualize your personalized weekly class schedule."
+        description="Build and visualize your personalized weekly class schedule based on fixed periods."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
@@ -156,15 +142,14 @@ export default function RoutineMakerPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="space-y-1">
-                    <Label htmlFor={`${formId}-startTime`}>Start Time</Label>
-                    <Input id={`${formId}-startTime`} type="time" name="startTime" value={newClass.startTime} onChange={handleInputChange} required step="1800"/>
-                  </div>
-                   <div className="space-y-1">
-                    <Label htmlFor={`${formId}-endTime`}>End Time</Label>
-                    <Input id={`${formId}-endTime`} type="time" name="endTime" value={newClass.endTime} onChange={handleInputChange} required step="1800"/>
-                  </div>
+                <div className="space-y-1">
+                  <Label>Period</Label>
+                  <Select name="period" value={newClass.period} onValueChange={(v) => handleSelectChange('period', v)}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                      {classPeriods.map(p => <SelectItem key={p.time} value={p.time}>{p.name} ({p.time})</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="submit" className="w-full">
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Class
@@ -179,11 +164,11 @@ export default function RoutineMakerPage() {
             </CardHeader>
             <CardContent className="max-h-60 overflow-y-auto">
               <div className="space-y-2">
-                {classes.length > 0 ? classes.sort((a,b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day) || a.startTime.localeCompare(b.startTime)).map(c => (
+                {classes.length > 0 ? classes.sort((a,b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day) || a.period.localeCompare(b.period)).map(c => (
                   <div key={c.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                     <div className="text-sm">
                       <p className="font-semibold">{c.name}</p>
-                      <p className="text-muted-foreground">{c.day}, {c.startTime} - {c.endTime}</p>
+                      <p className="text-muted-foreground">{c.day}, {c.period}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => handleRemoveClass(c.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -198,27 +183,38 @@ export default function RoutineMakerPage() {
         <div className="lg:col-span-3">
             <Card className="overflow-hidden">
                 <div className="overflow-x-auto">
-                    <div className="flex min-w-[700px]">
-                        <div className="w-20 flex-shrink-0 pt-10">
-                            {timeSlots.map(time => (
-                                <div key={time} className="h-20 flex justify-end pr-2 border-r">
-                                    <span className="text-xs text-muted-foreground -translate-y-2.5">{time}</span>
+                    <div className="grid grid-cols-[auto_repeat(5,minmax(0,1fr))] min-w-[700px]">
+                        <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20"></div>
+                        {daysOfWeek.map(day => (
+                            <div key={day} className="text-center text-sm font-semibold py-2 border-b border-l sticky top-0 bg-background/95 backdrop-blur-sm z-20">
+                                {day}
+                            </div>
+                        ))}
+                        {timePeriods.map((period) => (
+                             <div key={period.time} className={cn("contents")}>
+                                <div className={cn("text-xs text-muted-foreground text-right pr-2 py-4 border-r", !period.isBreak && 'border-t')}>
+                                    <p className="font-medium">{period.name}</p>
+                                    <p>{period.time}</p>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="flex-grow grid grid-cols-7">
-                            {daysOfWeek.map(day => (
-                                <div key={day} className="relative border-l">
-                                    <div className="text-center text-sm font-semibold py-2 h-10 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">{day}</div>
-                                    <div className="absolute inset-0 top-10">
-                                        {timeSlots.slice(0, -1).map(time => (
-                                            <div key={`${day}-${time}-line`} className="h-20 border-t border-dashed"></div>
-                                        ))}
-                                    </div>
-                                    {classes.filter(c => c.day === day).map((c, index) => <ClassCard key={c.id} classItem={c} colorIndex={index} />)}
-                                </div>
-                            ))}
-                        </div>
+                                {daysOfWeek.map(day => {
+                                    if (period.isBreak) {
+                                        return (
+                                            <div key={`${day}-${period.time}`} className="bg-muted/50 border-l flex items-center justify-center">
+                                                {day === 'Saturday' && <div className="text-sm font-semibold text-muted-foreground -rotate-90 whitespace-nowrap">LUNCH</div>}
+                                            </div>
+                                        )
+                                    }
+                                    const classItem = classes.find(c => c.day === day && c.period === period.time);
+                                    const courseNameIndex = classItem ? uniqueCourseNames.indexOf(classItem.name) : -1;
+                                    
+                                    return (
+                                        <div key={`${day}-${period.time}`} className="border-l border-t p-1 min-h-[90px]">
+                                            {classItem && <ClassCard classItem={classItem} colorIndex={courseNameIndex} />}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </Card>
