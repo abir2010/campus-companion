@@ -48,7 +48,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
     
     try {
       const canvas = await html2canvas(printElement, {
-        scale: 2, // Use a higher scale for better resolution
+        scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
       });
@@ -63,16 +63,35 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const contentAspectRatio = canvas.width / canvas.height;
+      const pageAspectRatio = pdfWidth / pdfHeight;
+
+      let imgWidth, imgHeight;
+
+      if (contentAspectRatio > pageAspectRatio) {
+        imgWidth = pdfWidth;
+        imgHeight = imgWidth / contentAspectRatio;
+      } else {
+        imgHeight = pdfHeight;
+        imgWidth = imgHeight * contentAspectRatio;
+      }
+
+      const x = (pdfWidth - imgWidth) / 2;
+      const y = (pdfHeight - imgHeight) / 2;
+
+      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
       
-      // Use data URI to trigger download for better mobile compatibility
-      const pdfData = pdf.output('datauristring');
+      const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+
       const link = document.createElement('a');
-      link.href = pdfData;
+      link.href = blobUrl;
       link.download = 'cover-page.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -228,14 +247,12 @@ export function CoverPreview({ content }: CoverPreviewProps) {
           </Button>
         </CardHeader>
         <CardContent>
-          {/* This is the visible preview, which is responsive and may be scaled down. */}
           <div className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm">
             <CoverPageLayout design={design} renderPreview={renderPreview} />
           </div>
         </CardContent>
       </Card>
       
-      {/* This is the hidden container used ONLY for PDF generation. It's off-screen and perfectly sized. */}
       <div className="absolute -left-[9999px] top-auto z-[-1]">
         <div ref={printRef} className="w-[210mm] h-[297mm]">
           <CoverPageLayout design={design} renderPreview={renderPreview} />

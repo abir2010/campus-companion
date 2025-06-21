@@ -383,14 +383,17 @@ export default function RoutineMakerPage() {
         const pdfHeight = pdf.internal.pageSize.getHeight();
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
         
-        // Use data URI to trigger download for better mobile compatibility
-        const pdfData = pdf.output('datauristring');
+        const pdfBlob = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
         const link = document.createElement('a');
-        link.href = pdfData;
+        link.href = blobUrl;
         link.download = 'class-routine.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
     } catch (error) {
         console.error("Error generating PDF:", error);
