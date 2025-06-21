@@ -18,8 +18,21 @@ type Course = {
 };
 
 const gradePoints: { [key: string]: number } = {
-  'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0,
+  'A+': 4.0, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0,
 };
+
+const gradingScale = [
+  { grade: "A+", marks: "80-100" },
+  { grade: "A", marks: "75-79" },
+  { grade: "A-", marks: "70-74" },
+  { grade: "B+", marks: "65-69" },
+  { grade: "B", marks: "60-64" },
+  { grade: "B-", marks: "55-59" },
+  { grade: "C+", marks: "50-54" },
+  { grade: "C", marks: "45-49" },
+  { grade: "D", marks: "40-44" },
+  { grade: "F", marks: "Below 40" },
+];
 
 export default function GpaCalculatorPage() {
   const [courses, setCourses] = useState<Course[]>([
@@ -120,6 +133,29 @@ export default function GpaCalculatorPage() {
         </div>
         
         <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Grading Scale</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Grade</TableHead>
+                                <TableHead className="text-right">Marks Range</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {gradingScale.map((item) => (
+                                <TableRow key={item.grade}>
+                                    <TableCell className="font-medium">{item.grade}</TableCell>
+                                    <TableCell className="text-right">{item.marks}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Cumulative GPA</CardTitle>
