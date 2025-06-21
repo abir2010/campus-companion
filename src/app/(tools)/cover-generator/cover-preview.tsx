@@ -31,7 +31,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
         backgroundColor: '#ffffff',
       });
 
-      const imgData = canvas.toDataURL('image/png'); // Use PNG for better quality
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -43,22 +43,27 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       
       const canvasWidth = canvas.width;
       const canvasHeight = canvas.height;
-      const canvasAspectRatio = canvasWidth / canvasHeight;
       
-      let imgWidth = pdfWidth;
-      let imgHeight = imgWidth / canvasAspectRatio;
+      const pageAspectRatio = pdfWidth / pdfHeight;
+      const canvasAspectRatio = canvasWidth / canvasHeight;
 
-      // If the calculated height is greater than the pdf page height,
-      // we need to scale down based on height instead, to prevent cutting.
-      if (imgHeight > pdfHeight) {
-          imgHeight = pdfHeight;
-          imgWidth = imgHeight * canvasAspectRatio;
+      let finalImgWidth, finalImgHeight;
+      
+      if (canvasAspectRatio > pageAspectRatio) {
+        // Canvas is wider than page aspect ratio, so fit to width
+        finalImgWidth = pdfWidth;
+        finalImgHeight = finalImgWidth / canvasAspectRatio;
+      } else {
+        // Canvas is taller or same aspect ratio, so fit to height
+        finalImgHeight = pdfHeight;
+        finalImgWidth = finalImgHeight * canvasAspectRatio;
       }
+      
+      // Center the image
+      const xOffset = (pdfWidth - finalImgWidth) / 2;
+      const yOffset = (pdfHeight - finalImgHeight) / 2;
 
-      const xOffset = (pdfWidth - imgWidth) / 2;
-      const yOffset = (pdfHeight - imgHeight) / 2;
-
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
       pdf.save('cover-page.pdf');
 
     } catch (error) {
@@ -214,7 +219,7 @@ export function CoverPreview({ content }: CoverPreviewProps) {
         </Button>
       </CardHeader>
       <CardContent>
-        <div ref={previewRef} className="relative min-h-[700px] w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm overflow-hidden">
+        <div ref={previewRef} className="relative w-[210mm] max-w-full mx-auto aspect-[1/1.414] rounded-md border bg-card text-sm">
            {design === 'artistic' && (
             <>
                 <div className="absolute top-[-50px] left-[-75px] w-48 h-48 bg-primary/5 rounded-full -z-0" />
