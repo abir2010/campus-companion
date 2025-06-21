@@ -90,9 +90,11 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       link.download = 'cover-page.pdf';
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 100);
 
     } catch (error) {
       console.error("Error generating PDF:", error);
