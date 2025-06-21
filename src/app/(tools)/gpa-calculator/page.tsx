@@ -13,7 +13,7 @@ import { PlusCircle, Trash2 } from "lucide-react";
 type Course = {
   id: number;
   name: string;
-  credits: number;
+  credits: string;
   grade: string;
 };
 
@@ -45,16 +45,16 @@ const gradingScale = [
 
 export default function GpaCalculatorPage() {
   const [courses, setCourses] = useState<Course[]>([
-    { id: 1, name: "Intro to Programming", credits: 3, grade: "A" },
-    { id: 2, name: "Calculus I", credits: 4, grade: "B+" },
+    { id: 1, name: "Intro to Programming", credits: "3", grade: "A" },
+    { id: 2, name: "Calculus I", credits: "4", grade: "B+" },
   ]);
-  const [newCourse, setNewCourse] = useState({ name: "", credits: 3, grade: "A" });
-  const [cumulative, setCumulative] = useState({ gpa: 3.5, credits: 60 });
+  const [newCourse, setNewCourse] = useState({ name: "", credits: "3", grade: "A" });
+  const [cumulative, setCumulative] = useState({ gpa: "3.5", credits: "60" });
 
   const handleAddCourse = () => {
     if (!newCourse.name || !newCourse.credits || !newCourse.grade) return;
     setCourses([...courses, { ...newCourse, id: Date.now() }]);
-    setNewCourse({ name: "", credits: 3, grade: "A" });
+    setNewCourse({ name: "", credits: "3", grade: "A" });
   };
 
   const handleRemoveCourse = (id: number) => {
@@ -62,12 +62,15 @@ export default function GpaCalculatorPage() {
   };
 
   const { semesterGpa, cumulativeGpa } = useMemo(() => {
-    const totalPoints = courses.reduce((acc, course) => acc + (gradePoints[course.grade] * course.credits), 0);
-    const totalCredits = courses.reduce((acc, course) => acc + course.credits, 0);
+    const totalPoints = courses.reduce((acc, course) => acc + (gradePoints[course.grade] * (Number(course.credits) || 0)), 0);
+    const totalCredits = courses.reduce((acc, course) => acc + (Number(course.credits) || 0), 0);
     const semesterGpa = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
 
-    const totalCumulativePoints = (cumulative.gpa * cumulative.credits) + totalPoints;
-    const totalCumulativeCredits = cumulative.credits + totalCredits;
+    const prevGpa = Number(cumulative.gpa) || 0;
+    const prevCredits = Number(cumulative.credits) || 0;
+
+    const totalCumulativePoints = (prevGpa * prevCredits) + totalPoints;
+    const totalCumulativeCredits = prevCredits + totalCredits;
     const cumulativeGpa = totalCumulativeCredits > 0 ? (totalCumulativePoints / totalCumulativeCredits) : 0;
 
     return {
@@ -150,7 +153,7 @@ export default function GpaCalculatorPage() {
                   </div>
                    <div className="space-y-2">
                       <Label>Credits</Label>
-                      <Input type="number" value={newCourse.credits} onChange={e => setNewCourse({...newCourse, credits: Number(e.target.value)})} />
+                      <Input type="number" step="any" value={newCourse.credits} onChange={e => setNewCourse({...newCourse, credits: e.target.value})} />
                   </div>
                    <div className="space-y-2">
                       <Label>Grade</Label>
@@ -178,11 +181,11 @@ export default function GpaCalculatorPage() {
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
                         <Label>Previous Cumulative GPA</Label>
-                        <Input type="number" step="0.01" value={cumulative.gpa} onChange={e => setCumulative({...cumulative, gpa: Number(e.target.value)})} />
+                        <Input type="number" step="0.01" value={cumulative.gpa} onChange={e => setCumulative({...cumulative, gpa: e.target.value})} />
                     </div>
                      <div className="space-y-2">
                         <Label>Previous Total Credits</Label>
-                        <Input type="number" value={cumulative.credits} onChange={e => setCumulative({...cumulative, credits: Number(e.target.value)})} />
+                        <Input type="number" step="any" value={cumulative.credits} onChange={e => setCumulative({...cumulative, credits: e.target.value})} />
                     </div>
                 </CardContent>
             </Card>
