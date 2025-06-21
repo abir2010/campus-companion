@@ -1,19 +1,24 @@
 'use server';
 
-import { generateAssignmentCover, GenerateAssignmentCoverInput } from '@/ai/flows/generate-assignment-cover';
+import { generateCoverPage, GenerateCoverPageInput, GenerateCoverPageOutput } from '@/ai/flows/generate-assignment-cover';
 import { z } from 'zod';
 
 const formSchema = z.object({
+  coverType: z.enum(['assignment', 'lab-report']),
   assignmentTitle: z.string().min(1, 'Assignment title is required.'),
   courseName: z.string().min(1, 'Course name is required.'),
+  courseTeacherName: z.string().min(1, 'Teacher name is required.'),
+  teacherDesignation: z.string().min(1, 'Teacher designation is required.'),
   studentName: z.string().min(1, 'Student name is required.'),
   studentId: z.string().min(1, 'Student ID is required.'),
+  studentSection: z.string().min(1, 'Section is required.'),
+  studentSemester: z.string().min(1, 'Semester is required.'),
   submissionDate: z.string().min(1, 'Submission date is required.'),
 });
 
 type FormState = {
   message: string;
-  coverPageText?: string;
+  coverPageData?: GenerateCoverPageOutput;
   errors?: {
     [key: string]: string[] | undefined;
   };
@@ -30,10 +35,10 @@ export async function handleGenerateCover(prevState: FormState, formData: FormDa
   }
 
   try {
-    const result = await generateAssignmentCover(validatedFields.data as GenerateAssignmentCoverInput);
+    const result = await generateCoverPage(validatedFields.data as GenerateCoverPageInput);
     return {
       message: 'Success!',
-      coverPageText: result.coverPageText,
+      coverPageData: result,
     };
   } catch (error) {
     console.error(error);

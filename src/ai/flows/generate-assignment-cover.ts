@@ -1,59 +1,86 @@
 'use server';
 
 /**
- * @fileOverview A flow for generating assignment cover pages.
+ * @fileOverview A flow for generating assignment or lab report cover pages.
  *
- * - generateAssignmentCover - A function that generates an assignment cover page.
- * - GenerateAssignmentCoverInput - The input type for the generateAssignmentCover function.
- * - GenerateAssignmentCoverOutput - The return type for the generateAssignmentCover function.
+ * - generateCoverPage - A function that generates a cover page.
+ * - GenerateCoverPageInput - The input type for the generateCoverPage function.
+ * - GenerateCoverPageOutput - The return type for the generateCoverPage function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GenerateAssignmentCoverInputSchema = z.object({
-  assignmentTitle: z.string().describe('The title of the assignment.'),
+const GenerateCoverPageInputSchema = z.object({
+  coverType: z.enum(['assignment', 'lab-report']).describe('The type of cover page to generate.'),
+  assignmentTitle: z.string().describe('The title of the assignment or lab report.'),
   courseName: z.string().describe('The name of the course.'),
+  courseTeacherName: z.string().describe("The course teacher's name."),
+  teacherDesignation: z.string().describe("The course teacher's designation."),
   studentName: z.string().describe('The name of the student.'),
   studentId: z.string().describe('The student ID.'),
+  studentSection: z.string().describe("The student's section."),
+  studentSemester: z.string().describe("The student's semester."),
   submissionDate: z.string().describe('The submission date of the assignment.'),
 });
-export type GenerateAssignmentCoverInput = z.infer<typeof GenerateAssignmentCoverInputSchema>;
+export type GenerateCoverPageInput = z.infer<typeof GenerateCoverPageInputSchema>;
 
-const GenerateAssignmentCoverOutputSchema = z.object({
-  coverPageText: z.string().describe('The generated text for the assignment cover page.'),
+const GenerateCoverPageOutputSchema = z.object({
+    title: z.string().describe('The main title for the cover page, like "Assignment Cover" or "Lab Report".'),
+    assignmentTitle: z.string().describe('The title of the assignment or lab report.'),
+    courseName: z.string().describe('The name of the course.'),
+    submittedTo: z.object({
+        name: z.string().describe("The course teacher's name."),
+        designation: z.string().describe("The course teacher's designation."),
+    }),
+    submittedBy: z.object({
+        name: z.string().describe("The student's name."),
+        id: z.string().describe("The student's ID."),
+        section: z.string().describe("The student's section."),
+        semester: z.string().describe("The student's semester."),
+    }),
+    submissionDate: z.string().describe('The submission date.'),
 });
-export type GenerateAssignmentCoverOutput = z.infer<typeof GenerateAssignmentCoverOutputSchema>;
+export type GenerateCoverPageOutput = z.infer<typeof GenerateCoverPageOutputSchema>;
 
-export async function generateAssignmentCover(input: GenerateAssignmentCoverInput): Promise<GenerateAssignmentCoverOutput> {
-  return generateAssignmentCoverFlow(input);
+
+export async function generateCoverPage(input: GenerateCoverPageInput): Promise<GenerateCoverPageOutput> {
+  return generateCoverPageFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'generateAssignmentCoverPrompt',
-  input: {schema: GenerateAssignmentCoverInputSchema},
-  output: {schema: GenerateAssignmentCoverOutputSchema},
-  prompt: `You are an expert in creating professional-looking assignment cover pages.
+  name: 'generateCoverPagePrompt',
+  input: {schema: GenerateCoverPageInputSchema},
+  output: {schema: GenerateCoverPageOutputSchema},
+  prompt: `You are an expert in creating professional-looking university cover pages.
+  Generate the data for a cover page based on the following information.
 
-  Generate the text for an assignment cover page with the following information:
-
-  Assignment Title: {{{assignmentTitle}}}
+  Cover Page Type: {{{coverType}}}
+  Title: {{{assignmentTitle}}}
   Course Name: {{{courseName}}}
-  Student Name: {{{studentName}}}
-  Student ID: {{{studentId}}}
+
+  Submitted To:
+  Name: {{{courseTeacherName}}}
+  Designation: {{{teacherDesignation}}}
+
+  Submitted By:
+  Name: {{{studentName}}}
+  ID: {{{studentId}}}
+  Section: {{{studentSection}}}
+  Semester: {{{studentSemester}}}
+
   Submission Date: {{{submissionDate}}}
 
-  The cover page should include a title, the course name, student information, and submission date.
-  Ensure the cover page looks professional and is well-formatted.
-  Do not generate any HTML or markdown - only the text of the cover page.
+  Based on the cover type, set the main 'title' field in the output. For 'assignment', the title should be 'Assignment Cover', and for 'lab-report', it should be 'Lab Report'.
+  Populate all fields in the output JSON schema accurately based on the provided inputs.
   `,
 });
 
-const generateAssignmentCoverFlow = ai.defineFlow(
+const generateCoverPageFlow = ai.defineFlow(
   {
-    name: 'generateAssignmentCoverFlow',
-    inputSchema: GenerateAssignmentCoverInputSchema,
-    outputSchema: GenerateAssignmentCoverOutputSchema,
+    name: 'generateCoverPageFlow',
+    inputSchema: GenerateCoverPageInputSchema,
+    outputSchema: GenerateCoverPageOutputSchema,
   },
   async input => {
     const {output} = await prompt(input);

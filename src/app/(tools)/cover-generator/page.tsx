@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
+import { useFormStatus, useActionState } from 'react-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,14 +12,22 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CoverPreview } from './cover-preview';
 import { WandSparkles } from 'lucide-react';
-import { useEffect, useActionState } from 'react';
+import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { GenerateCoverPageOutput } from '@/ai/flows/generate-assignment-cover';
+
 
 const formSchema = z.object({
-  assignmentTitle: z.string().min(3, 'Assignment title must be at least 3 characters.'),
+  coverType: z.enum(['assignment', 'lab-report']),
+  assignmentTitle: z.string().min(3, 'Title must be at least 3 characters.'),
   courseName: z.string().min(3, 'Course name must be at least 3 characters.'),
+  courseTeacherName: z.string().min(2, 'Teacher name must be at least 2 characters.'),
+  teacherDesignation: z.string().min(2, 'Designation must be at least 2 characters.'),
   studentName: z.string().min(2, 'Student name must be at least 2 characters.'),
   studentId: z.string().min(1, 'Student ID is required.'),
+  studentSection: z.string().min(1, 'Section is required.'),
+  studentSemester: z.string().min(1, 'Semester is required.'),
   submissionDate: z.string().min(1, 'Submission date is required.'),
 });
 
@@ -56,10 +64,15 @@ export default function CoverGeneratorPage() {
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      coverType: 'assignment',
       assignmentTitle: '',
       courseName: '',
+      courseTeacherName: '',
+      teacherDesignation: '',
       studentName: '',
       studentId: '',
+      studentSection: '',
+      studentSemester: '',
       submissionDate: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
     },
   });
@@ -77,26 +90,46 @@ export default function CoverGeneratorPage() {
   return (
     <div>
       <PageHeader
-        title="Assignment Cover Generator"
-        description="Provide your assignment details and let our AI generate a professional cover page for you."
+        title="Cover Page Generator"
+        description="Provide your details and let our AI generate a professional cover page for you."
       />
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <Card>
           <form action={formAction} className="flex h-full flex-col">
             <CardHeader>
-              <CardTitle>Assignment Details</CardTitle>
+              <CardTitle>Details</CardTitle>
               <CardDescription>Fill in the fields below to create your cover page.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-              <Form {...form}>
+               <Form {...form}>
+                <Tabs 
+                  defaultValue="assignment" 
+                  className="w-full" 
+                  onValueChange={(value) => form.setValue('coverType', value as 'assignment' | 'lab-report')}
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="assignment">Assignment Cover</TabsTrigger>
+                    <TabsTrigger value="lab-report">Lab Report</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <FormField
+                  control={form.control}
+                  name="coverType"
+                  render={({ field }) => (
+                    <FormControl>
+                      <Input type="hidden" {...field} />
+                    </FormControl>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="assignmentTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Assignment Title</FormLabel>
+                      <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Introduction to AI Research Paper" {...field} />
+                        <Input placeholder="e.g., Introduction to AI" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -110,6 +143,32 @@ export default function CoverGeneratorPage() {
                       <FormLabel>Course Name</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., COMP 472" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="courseTeacherName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Course Teacher Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Dr. Alan Turing" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="teacherDesignation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teacher's Designation</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Professor" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -141,6 +200,32 @@ export default function CoverGeneratorPage() {
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="studentSection"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Section</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., A" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="studentSemester"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Semester</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 5th" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="submissionDate"
@@ -162,8 +247,8 @@ export default function CoverGeneratorPage() {
           </form>
         </Card>
         <div className="flex items-start">
-          {state.coverPageText ? (
-            <CoverPreview content={state.coverPageText} />
+          {state.coverPageData ? (
+            <CoverPreview content={state.coverPageData} />
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted">
               <div className="text-center">
