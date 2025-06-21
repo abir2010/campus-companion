@@ -23,50 +23,84 @@ export function CoverPreview({ content }: CoverPreviewProps) {
             <head>
                 <title>Assignment Cover Page</title>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400&display=swap');
-                    body { 
-                        font-family: 'Inter', sans-serif;
+                    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Times+New+Roman&display=swap');
+                    body {
                         margin: 0;
                         padding: 0;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        height: 100vh;
-                     }
-                    .cover-content { 
-                        width: 8.5in;
-                        height: 11in;
+                        font-family: 'Times New Roman', serif;
+                        background-color: #f4f4f4;
+                        -webkit-print-color-adjust: exact;
+                    }
+                    .page {
+                        width: 210mm;
+                        height: 297mm;
+                        margin: auto;
+                        background: white;
                         padding: 1in;
                         box-sizing: border-box;
                         display: flex;
                         flex-direction: column;
-                        justify-content: center;
-                        align-items: center; 
-                        text-align: center;
+                        position: relative;
+                        border: 1px solid #ccc;
                     }
-                    pre { 
-                        font-family: 'Inter', sans-serif;
-                        white-space: pre-wrap; 
+                    .page-border {
+                        position: absolute;
+                        top: 0.5in;
+                        left: 0.5in;
+                        right: 0.5in;
+                        bottom: 0.5in;
+                        border: 5px double #003366;
+                        pointer-events: none;
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 2in;
+                    }
+                    .university-name {
+                        font-family: 'Space Grotesk', sans-serif;
+                        font-size: 24pt;
+                        font-weight: 700;
+                        color: #003366;
+                    }
+                    .content-area {
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    pre {
+                        font-family: 'Times New Roman', serif;
+                        white-space: pre-wrap;
                         word-wrap: break-word;
-                        font-size: 12pt;
+                        font-size: 14pt;
                         line-height: 2;
+                        text-align: center;
+                        margin: 0;
                     }
                     @page {
                         size: A4;
-                        margin: 1in;
+                        margin: 0;
                     }
                 </style>
             </head>
             <body>
-                <div class="cover-content">
-                    <pre>${content}</pre>
+                <div class="page">
+                    <div class="page-border"></div>
+                    <div class="header">
+                        <p class="university-name">International Islamic University Chittagong</p>
+                    </div>
+                    <div class="content-area">
+                        <pre>${content}</pre>
+                    </div>
                 </div>
                 <script>
-                  window.onload = function() {
-                    window.focus();
-                    window.print();
-                    window.close();
-                  }
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.focus();
+                            window.print();
+                            window.close();
+                        }, 250);
+                    }
                 </script>
             </body>
         </html>
