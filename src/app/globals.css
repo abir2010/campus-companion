@@ -82,7 +82,28 @@ body {
   * {
     @apply border-border;
   }
+  
+  html {
+    @apply bg-background;
+    background-image: 
+      radial-gradient(ellipse 40% 50% at 40% -10%, hsl(var(--primary) / 0.1), transparent),
+      radial-gradient(ellipse 40% 50% at 60% -10%, hsl(var(--accent) / 0.1), transparent),
+      linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 100% 600px, 100% 600px, 2.5rem 2.5rem, 2.5rem 2.5rem;
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+    background-position: top center, top center, 0 0, 0 0;
+  }
+  
+  .dark html {
+     background-image: 
+      radial-gradient(ellipse 80% 60% at 50% -20%, hsl(var(--accent) / 0.1), transparent 70%),
+      linear-gradient(to right, hsl(var(--border) / 0.8) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.8) 1px, transparent 1px);
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: transparent;
   }
 }
