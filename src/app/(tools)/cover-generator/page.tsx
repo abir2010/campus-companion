@@ -107,7 +107,7 @@ export default function CoverGeneratorPage() {
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Card>
-          <form action={form.handleSubmit(data => formAction(new FormData(document.getElementById("cover-form") as HTMLFormElement)))} id="cover-form" className="flex h-full flex-col">
+          <form action={formAction} id="cover-form" className="flex h-full flex-col">
             <CardHeader>
               <CardTitle>Details</CardTitle>
               <CardDescription>Fill in the fields below to create your cover page.</CardDescription>
