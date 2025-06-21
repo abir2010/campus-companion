@@ -56,11 +56,15 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                         border: 5px double #003366;
                         pointer-events: none;
                     }
-                    .header, .footer { text-align: center; }
-                    .header { margin-bottom: 1.5in; }
+                    .header { 
+                        text-align: center;
+                        margin-bottom: 1in;
+                        border-bottom: 2px solid #003366;
+                        padding-bottom: 0.25in;
+                    }
                     .university-name {
                         font-family: 'Space Grotesk', sans-serif;
-                        font-size: 24pt;
+                        font-size: 22pt;
                         font-weight: 700;
                         color: #003366;
                         margin: 0;
@@ -73,18 +77,20 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                       align-items: center;
                       text-align: center;
                     }
-                    .main-title { font-size: 28pt; font-weight: bold; margin-bottom: 0.5in; }
+                    .main-title { font-size: 36pt; font-weight: bold; margin-bottom: 0.75in; }
+                    .course-details { font-size: 18pt; line-height: 1.5; }
                     .details-grid {
                       display: flex;
                       justify-content: space-between;
                       width: 100%;
-                      margin-top: 2in;
+                      margin-top: 1.5in;
                       font-size: 14pt;
                     }
                     .info-block { width: 45%; text-align: left; }
                     .info-block h3 { font-size: 16pt; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 5px; margin-bottom: 15px;}
                     .info-block p { margin: 5px 0; }
-                    .date-section { margin-top: 2in; font-size: 14pt; }
+                    .footer { text-align: center; }
+                    .date-section { margin-top: 1.5in; font-size: 14pt; }
                     @page { size: A4; margin: 0; }
                 </style>
             </head>
@@ -96,8 +102,10 @@ export function CoverPreview({ content }: CoverPreviewProps) {
                     </div>
                     <div class="content-area">
                         <h1 class="main-title">${title}</h1>
-                        <p><strong>Course:</strong> ${courseName}</p>
-                        <p><strong>Topic:</strong> ${assignmentTitle}</p>
+                        <div class="course-details">
+                            <p><strong>Course:</strong> ${courseName}</p>
+                            <p><strong>Topic:</strong> ${assignmentTitle}</p>
+                        </div>
                     </div>
                     <div class="details-grid">
                       <div class="info-block">
@@ -149,16 +157,18 @@ export function CoverPreview({ content }: CoverPreviewProps) {
             className="pointer-events-none absolute inset-2 border-4 border-double"
             style={{ borderColor: 'hsl(var(--primary))' }}
           />
-          <div className="flex h-full flex-col items-center justify-start pt-8 text-center">
-            <div className="mb-12">
-              <p className="font-headline text-lg font-bold" style={{ color: 'hsl(var(--primary))' }}>
+          <div className="flex h-full flex-col items-center justify-start text-center">
+            <div className="w-full border-b-2 pb-4" style={{ borderColor: 'hsl(var(--primary))' }}>
+              <p className="font-headline text-xl font-bold" style={{ color: 'hsl(var(--primary))' }}>
                 International Islamic University Chittagong
               </p>
             </div>
-            <div className="mb-12 text-center">
-                <h2 className="text-2xl font-bold font-headline">{title}</h2>
-                <p className="text-muted-foreground mt-4"><strong>Course:</strong> {courseName}</p>
-                <p className="text-muted-foreground"><strong>Topic:</strong> {assignmentTitle}</p>
+            <div className="my-12 flex-grow text-center">
+                <h2 className="text-4xl font-bold font-headline">{title}</h2>
+                <div className="mt-8 space-y-2 text-lg text-muted-foreground">
+                    <p><strong>Course:</strong> {courseName}</p>
+                    <p><strong>Topic:</strong> {assignmentTitle}</p>
+                </div>
             </div>
 
             <div className="mt-8 flex w-full justify-between text-left">
