@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CoverPreview } from './cover-preview';
 import { WandSparkles } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useActionState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
@@ -49,7 +49,7 @@ function SubmitButton() {
 
 export default function CoverGeneratorPage() {
   const { toast } = useToast();
-  const [state, formAction] = useFormState(handleGenerateCover, {
+  const [state, formAction] = useActionState(handleGenerateCover, {
     message: '',
   });
 
