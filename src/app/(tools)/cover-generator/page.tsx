@@ -145,6 +145,7 @@ export default function CoverGeneratorPage() {
                             ))}
                             </RadioGroup>
                         </FormControl>
+                        <Input type="hidden" {...field} />
                         <FormMessage />
                         </FormItem>
                     )}
