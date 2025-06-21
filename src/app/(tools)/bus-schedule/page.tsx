@@ -56,6 +56,38 @@ const universityToCityData = [
     { sl: 7, time: "04:35 p.m.", description: "For Male Students", route: "All approved Routes", endPoint: "All points" },
 ];
 
+const fridayCityToUniversity = [
+    { sl: 1, time: "7:30 a.m.", busNumber: "IIUC/HB", startingPoint: "BOT", route: "BOT-Chatteswari-WASA-Wireless-AK Khan-IIUC", remarks: "For ministerial staff" },
+    { sl: 2, time: "7:45 a.m.", busNumber: "IIUC/HB", startingPoint: "BOT", route: "BOT-Muradpur-2 no gate-Baizid link road-IIUC.", remarks: "For all" },
+    { sl: '', time: '', busNumber: "IIUC/HB", startingPoint: "Agrabad", route: "Agrabad-Baro Pul-AK Khan-IIUC", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC/HB", startingPoint: "Kotawali", route: "Kotowali-Kadamtali- Dewan Hat-Alanker-IIUC", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC/HB", startingPoint: "Chawakbazar", route: "Chatteswari Road-WASA-Wireless-AK Khan-IIUC", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC/HB", startingPoint: "Baroyerhat", route: "Baroyerhat-Mirsharai-Sitakunda-IIUC", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC Bus", startingPoint: "Oxygen", route: "Oxygen-Baizid-Shershah--IIUC", remarks: "For all" },
+    { sl: 3, time: "8:00 a.m.", busNumber: "AC Bus", startingPoint: "Chawakbazar", route: "Keari Elysium-Chatteswari Road-WASA-AK Khan -HUC", remarks: "Teachers" },
+    { sl: '', time: '', busNumber: "AC Bus", startingPoint: "BOT", route: "BOT-Muradpur-2 no gate-Baizid link road-IIUC", remarks: "Teachers" },
+    { sl: '', time: '', busNumber: "IIUC Bus", startingPoint: "Agrabad", route: "Agrabad-Boropool-AK Khan-IIUC", remarks: "For Teachers and staff" },
+    { sl: 4, time: "9:30 a.m.", busNumber: "IIUC Bus", startingPoint: "BOT", route: "BOT-Chatteswari Road WASA-Wireles-AK Khan-IIUC", remarks: "For Teachers and staff" },
+    { sl: 5, time: "11:45 p.m.", busNumber: "IIUC Bus", startingPoint: "BOT", route: "BOT-Chatteswari Road-WASA-Wireles-AK Khan-HUC", remarks: "For Teachers, Officer & staff" },
+    { sl: 6, time: "9:00 p.m.", busNumber: "IIUC Bus", startingPoint: "Chawakbazar", route: "Chatteswari Road- WASA- Khulshi-Wireles-AK Khan- HUC", remarks: "For the Residents of IIUC" },
+];
+
+const fridayUniversityToCity = [
+    { sl: 1, time: "12:10 p.m.", busNumber: "IIUC Bus", route: "IIUC-AK Khan-Wireles-Khulshi-WASA-Chatteswari Road", endPoint: "Chatteswari Road", remarks: "Students" },
+    { sl: '', time: '', busNumber: "IIUC Bus", route: "IIUC-Baizid link road-2 no gate-Muradpur-BOT", endPoint: "BOT", remarks: "Teachers" },
+    { sl: '', time: '', busNumber: "AC Bus", route: "IIUC-AK Khan-Wireles- Khulshi-WASA-Chatteswari Road- BOT", endPoint: "BOT", remarks: "Teachers" },
+    { sl: 2, time: "2:00 p.m.", busNumber: "IIUC & H.B", route: "IIUC-AK Khan-Wireles-Khulshi-WASA-Chatteswari Road", endPoint: "Chatteswari Road", remarks: "For all" },
+    { sl: '', time: '', busNumber: "IIUC & H.B", route: "IIUC-Baizid link road-2 no gate- Muradpur-BOT", endPoint: "BOT", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC & H.B", route: "IIUC-AK Khan-Nayabazar- Agrabad", endPoint: "Agrabad", remarks: "" },
+    { sl: 3, time: "4:15 p.m.", busNumber: "IIUC Bus", route: "IIUC-AK Khan-Wireles-Khulshi-WASA-Chatteswari Road", endPoint: "Chatteswari Road", remarks: "Students" },
+    { sl: '', time: '', busNumber: "", route: "IIUC-Baizid link road-2 no gate- Muradpur-BOT", endPoint: "BOT", remarks: "Teachers" },
+    { sl: '', time: '', busNumber: "AC Bus", route: "IIUC-AK Khan-Wireles-Khulshi - WASA-Chatteswari Road-BOT", endPoint: "BOT", remarks: "Teachers" },
+    { sl: 4, time: "6:15 p.m.", busNumber: "IIUC & H.B", route: "IIUC-Baizid link road-2 no gate- Muradpur-BOT", endPoint: "BOT", remarks: "For all" },
+    { sl: '', time: '', busNumber: "IIUC & H.B", route: "IIUC-AK Khan-Wireles- Khulshi - WASA- Chatteswari Road", endPoint: "Chatteswari Road", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC & H.B", route: "IIUC-AK Khan-Nayabazar- Agrabad", endPoint: "Agrabad", remarks: "" },
+    { sl: '', time: '', busNumber: "IIUC & H.B", route: "IIUC-Sitakunda-Mirsharai-Baroyarhat", endPoint: "Baroyerhat", remarks: "" },
+];
+
 
 export default function BusSchedulePage() {
   return (
@@ -132,10 +164,72 @@ export default function BusSchedulePage() {
                 </CardContent>
             </Card>
         </TabsContent>
-        <TabsContent value="friday" className="mt-4">
+        <TabsContent value="friday" className="mt-4 space-y-8">
             <Card>
-                <CardContent className="pt-6">
-                    <p className="text-center text-muted-foreground">No bus schedule available for Friday.</p>
+                <CardHeader>
+                    <CardTitle>Towards University</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>SL</TableHead>
+                                <TableHead>Starting Time</TableHead>
+                                <TableHead>Bus Number</TableHead>
+                                <TableHead>Starting Point</TableHead>
+                                <TableHead>Route</TableHead>
+                                <TableHead>Remarks</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {fridayCityToUniversity.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{item.sl}</TableCell>
+                                    <TableCell>{item.time}</TableCell>
+                                    <TableCell>{item.busNumber}</TableCell>
+                                    <TableCell>{item.startingPoint}</TableCell>
+                                    <TableCell>{item.route}</TableCell>
+                                    <TableCell>
+                                      {item.remarks && <Badge>{item.remarks}</Badge>}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>From University</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>SL</TableHead>
+                                <TableHead>Starting Time</TableHead>
+                                <TableHead>Bus Number</TableHead>
+                                <TableHead>Route</TableHead>
+                                <TableHead>End Point</TableHead>
+                                <TableHead>Remarks</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {fridayUniversityToCity.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{item.sl}</TableCell>
+                                    <TableCell>{item.time}</TableCell>
+                                    <TableCell>{item.busNumber}</TableCell>
+                                    <TableCell>{item.route}</TableCell>
+                                    <TableCell>{item.endPoint}</TableCell>
+                                     <TableCell>
+                                      {item.remarks && <Badge>{item.remarks}</Badge>}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </TabsContent>
