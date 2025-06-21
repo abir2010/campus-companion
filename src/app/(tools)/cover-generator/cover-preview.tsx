@@ -28,10 +28,10 @@ export function CoverPreview({ content }: CoverPreviewProps) {
       const canvas = await html2canvas(previewElement, {
         scale: 3, // Higher scale for better quality
         useCORS: true,
-        backgroundColor: '#ffffff', // Set a background color to avoid transparency issues
+        backgroundColor: '#ffffff',
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.98); // Use JPEG for smaller file size
+      const imgData = canvas.toDataURL('image/png'); // Use PNG for better quality
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -40,8 +40,25 @@ export function CoverPreview({ content }: CoverPreviewProps) {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const canvasAspectRatio = canvasWidth / canvasHeight;
+      
+      let imgWidth = pdfWidth;
+      let imgHeight = imgWidth / canvasAspectRatio;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // If the calculated height is greater than the pdf page height,
+      // we need to scale down based on height instead, to prevent cutting.
+      if (imgHeight > pdfHeight) {
+          imgHeight = pdfHeight;
+          imgWidth = imgHeight * canvasAspectRatio;
+      }
+
+      const xOffset = (pdfWidth - imgWidth) / 2;
+      const yOffset = (pdfHeight - imgHeight) / 2;
+
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
       pdf.save('cover-page.pdf');
 
     } catch (error) {
