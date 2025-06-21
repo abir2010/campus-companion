@@ -32,8 +32,8 @@ const features = [
     dataAiHint: 'calendar schedule',
   },
   {
-    title: 'Teacher Directory',
-    description: 'Find contact information for your teachers.',
+    title: 'Faculty Directory',
+    description: 'Find contact information for your faculty members.',
     icon: <UsersRound className="h-8 w-8 text-primary" />,
     href: '/teachers',
     dataAiHint: 'lecture hall',
