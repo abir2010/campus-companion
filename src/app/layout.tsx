@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ScrollToTop } from '@/components/scroll-to-top';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'IIUC Companion',
@@ -31,6 +32,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Analytics />
           <Toaster />
           <ScrollToTop />
         </ThemeProvider>
